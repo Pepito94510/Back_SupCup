@@ -1,13 +1,12 @@
 # Back_SupCup
 
+# Prerequisite: 
+- Docker
+- Docker-compose
+
 ## For run the project
-
-### Install the packages
 ```
-npm install
-```
-
-### Start node server 
-```
-npm run start
+docker-compose up  
+or 
+docker-compose up -d
 ```
