@@ -19,6 +19,7 @@ services:
       MYSQL_DATABASE: supcup_db
       MYSQL_USER: supcup_user
       MYSQL_PASSWORD: supcup_password
+      #If you change the credentials in the pma, you need to delete your volumes
     ports:
       - "6033:3306"
     volumes:
