@@ -1,14 +1,6 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(
-    'supcup_db',
-    'supcup_user',
-    'supcup_password',
-     {
-       host: 'localhost',
-       dialect: 'mysql'
-     }
-   );
+const sequelize = new Sequelize('mysql://supcup_user:supcup_password@db/supcup_db');
 
 try {
     sequelize.authenticate();
