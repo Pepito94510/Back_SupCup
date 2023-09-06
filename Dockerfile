@@ -1,5 +1,5 @@
 ## Recuperation de l'image docker Node (officiel), version latest
-FROM node:latest
+FROM node:latest as build
 
 ## Creation du répertoire
 WORKDIR /Back_SupCup
@@ -8,7 +8,7 @@ WORKDIR /Back_SupCup
 COPY --chown=node:node ./app .
 
 ## Installation des packages npm
-RUN npm install --production
+RUN npm install --omit=dev
 
 ## Ouverture du port 5001
 EXPOSE 5001
@@ -16,4 +16,4 @@ EXPOSE 5001
 USER node
 
 ## Lancement du script
-CMD npm run start
+CMD ['node', 'app.js']
