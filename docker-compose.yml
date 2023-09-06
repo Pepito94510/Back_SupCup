@@ -1,16 +1,21 @@
 version: '3.8'
 
-networks:
-  mysql-phpmyadmin:
-    name: mysql-phpmyadmin
-    # use the bridge driver
-    driver: bridge
-
 services:
   back_supcup:
     build: .
     ports:
-     - "5001:5001"
+      - "5001:5001"
+    volumes:
+      - './app:/Back_SupCup'
+    command: 
+      - /bin/sh
+      - '-c'
+      - 'npm install && npm start'
+    networks:
+      - mysql-phpmyadmin
+    depends_on:
+      db:
+        condition: service_healthy
   db:
     image: mysql:5.7
     container_name: db
@@ -25,7 +30,13 @@ services:
     ports:
       - "6033:3306"
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./app/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD', 'mysqladmin','ping', '-h', 'localhost']
+      timeout: 20s
+      retries: 10
+    networks:
+      - mysql-phpmyadmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: pma
@@ -38,5 +49,11 @@ services:
     restart: always
     ports:
       - 8081:80
-volumes:
-  dbdata:
+    networks:
+      - mysql-phpmyadmin
+
+networks:
+  mysql-phpmyadmin:
+    name: mysql-phpmyadmin
+    # use the bridge driver
+    driver: bridge
