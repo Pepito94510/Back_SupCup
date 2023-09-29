@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db:3306
--- Généré le : ven. 29 sep. 2023 à 09:47
+-- Généré le : ven. 29 sep. 2023 à 14:57
 -- Version du serveur : 5.7.42
 -- Version de PHP : 8.2.8
 
@@ -156,7 +156,7 @@ INSERT INTO `USER` (`Id`, `Nom`, `Prenom`, `Email`, `Telephone`) VALUES
 CREATE TABLE `USER_EVENT` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `is_event` int(11) NOT NULL,
+  `id_event` int(11) NOT NULL,
   `description` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -174,7 +174,9 @@ ALTER TABLE `BAR`
 -- Index pour la table `BAR_EVENT`
 --
 ALTER TABLE `BAR_EVENT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_bar` (`id_bar`,`id_event`),
+  ADD KEY `id_event` (`id_event`);
 
 --
 -- Index pour la table `EQUIPE`
@@ -192,13 +194,17 @@ ALTER TABLE `EVENT`
 -- Index pour la table `FAV_EQUIPE`
 --
 ALTER TABLE `FAV_EQUIPE`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_user` (`id_user`,`id_equipe`),
+  ADD KEY `id_equipe` (`id_equipe`);
 
 --
 -- Index pour la table `FAV_SPORT`
 --
 ALTER TABLE `FAV_SPORT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_user` (`id_user`,`id_sport`),
+  ADD KEY `id_sport` (`id_sport`);
 
 --
 -- Index pour la table `ROLE`
@@ -222,7 +228,9 @@ ALTER TABLE `USER`
 -- Index pour la table `USER_EVENT`
 --
 ALTER TABLE `USER_EVENT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_user` (`id_user`,`id_event`),
+  ADD KEY `is_event` (`id_event`);
 
 --
 -- AUTO_INCREMENT pour les tables déchargées
@@ -287,6 +295,38 @@ ALTER TABLE `USER`
 --
 ALTER TABLE `USER_EVENT`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+--
+-- Contraintes pour la table `BAR_EVENT`
+--
+ALTER TABLE `BAR_EVENT`
+  ADD CONSTRAINT `BAR_EVENT_ibfk_1` FOREIGN KEY (`id_bar`) REFERENCES `BAR` (`id`),
+  ADD CONSTRAINT `BAR_EVENT_ibfk_2` FOREIGN KEY (`id_event`) REFERENCES `EVENT` (`id`);
+
+--
+-- Contraintes pour la table `FAV_EQUIPE`
+--
+ALTER TABLE `FAV_EQUIPE`
+  ADD CONSTRAINT `FAV_EQUIPE_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `FAV_EQUIPE_ibfk_2` FOREIGN KEY (`id_equipe`) REFERENCES `EQUIPE` (`id`);
+
+--
+-- Contraintes pour la table `FAV_SPORT`
+--
+ALTER TABLE `FAV_SPORT`
+  ADD CONSTRAINT `FAV_SPORT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `FAV_SPORT_ibfk_2` FOREIGN KEY (`id_sport`) REFERENCES `SPORT` (`id`);
+
+--
+-- Contraintes pour la table `USER_EVENT`
+--
+ALTER TABLE `USER_EVENT`
+  ADD CONSTRAINT `USER_EVENT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `USER_EVENT_ibfk_2` FOREIGN KEY (`id_event`) REFERENCES `EVENT` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
