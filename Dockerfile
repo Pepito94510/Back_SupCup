@@ -16,4 +16,4 @@ EXPOSE 5001
 USER node
 
 ## Lancement du script
-CMD ['node', 'app.js']
+CMD ["node", "app.js"]
