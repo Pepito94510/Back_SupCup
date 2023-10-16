@@ -42,3 +42,13 @@ ON u.id = f.id_user
 LEFT JOIN SPORT s
 ON f.id_sport = s.id;
 ```
+
+Get fav teams from id_user
+```
+SELECT * 
+FROM USER u
+LEFT JOIN FAV_EQUIPE f
+ON u.id = f.id_user
+LEFT JOIN EQUIPE e
+ON f.id_equipe = e.id;
+```

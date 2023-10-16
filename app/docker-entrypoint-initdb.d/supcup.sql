@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db:3306
--- Généré le : lun. 02 oct. 2023 à 18:03
+-- Généré le : lun. 16 oct. 2023 à 08:23
 -- Version du serveur : 5.7.42
 -- Version de PHP : 8.2.8
 
@@ -65,13 +65,25 @@ CREATE TABLE `EQUIPE` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `EQUIPE_EVENT`
+--
+
+CREATE TABLE `EQUIPE_EVENT` (
+  `Id` int(11) NOT NULL,
+  `Id_equipe` int(11) NOT NULL,
+  `Id_event` int(11) NOT NULL,
+  `Description` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `EVENT`
 --
 
 CREATE TABLE `EVENT` (
   `id` int(11) NOT NULL,
   `id_sport` int(11) NOT NULL,
-  `id_equipes` int(11) NOT NULL,
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -193,10 +205,19 @@ ALTER TABLE `EQUIPE`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `EQUIPE_EVENT`
+--
+ALTER TABLE `EQUIPE_EVENT`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `Id_equipe` (`Id_equipe`,`Id_event`),
+  ADD KEY `Id_event` (`Id_event`);
+
+--
 -- Index pour la table `EVENT`
 --
 ALTER TABLE `EVENT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_sport` (`id_sport`);
 
 --
 -- Index pour la table `FAV_EQUIPE`
@@ -264,6 +285,12 @@ ALTER TABLE `EQUIPE`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT pour la table `EQUIPE_EVENT`
+--
+ALTER TABLE `EQUIPE_EVENT`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `EVENT`
 --
 ALTER TABLE `EVENT`
@@ -315,6 +342,19 @@ ALTER TABLE `USER_EVENT`
 ALTER TABLE `BAR_EVENT`
   ADD CONSTRAINT `BAR_EVENT_ibfk_1` FOREIGN KEY (`id_bar`) REFERENCES `BAR` (`id`),
   ADD CONSTRAINT `BAR_EVENT_ibfk_2` FOREIGN KEY (`id_event`) REFERENCES `EVENT` (`id`);
+
+--
+-- Contraintes pour la table `EQUIPE_EVENT`
+--
+ALTER TABLE `EQUIPE_EVENT`
+  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_1` FOREIGN KEY (`Id_equipe`) REFERENCES `EQUIPE` (`id`),
+  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_2` FOREIGN KEY (`Id_event`) REFERENCES `EVENT` (`id`);
+
+--
+-- Contraintes pour la table `EVENT`
+--
+ALTER TABLE `EVENT`
+  ADD CONSTRAINT `EVENT_ibfk_1` FOREIGN KEY (`id_sport`) REFERENCES `SPORT` (`id`);
 
 --
 -- Contraintes pour la table `FAV_EQUIPE`
