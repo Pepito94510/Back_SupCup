@@ -4,11 +4,11 @@ const sequelize = require('../utils/database');
 class user extends Model {};
 
 user.init({
-    FirstName: {
+    Prenom: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    LastName: {
+    Nom: {
         type: DataTypes.STRING,
         allowNull: true
     },
@@ -18,6 +18,10 @@ user.init({
     },
     Telephone: {
         type: DataTypes.STRING,
+        allowNull: true
+    },
+    Role_id: {
+        type: DataTypes.NUMBER,
         allowNull: true
     }
 }, {

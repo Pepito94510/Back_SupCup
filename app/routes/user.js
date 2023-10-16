@@ -15,21 +15,26 @@ router.get('/:userId', async(req, res) => {
 });
 
 router.post('/create', async(req, res) => {
-    console.log(req.body);
+    let userBDD = await user.findOne({ where: { Email: req.body.email } });
+    
+    if(userBDD) { 
+        res.status(200).json('User already created')
+        console.log('User already created') 
+    } else {
+        const newUser = user.build({
+            Nom: req.body.nom,
+            Prenom: req.body.prenom,
+            Email: req.body.email,
+            Telephone: req.body.telephone,
+            Role_id: req.body.role
+        });
+        await newUser.save();
 
-    const newUser = user.build({
-        FirstName: req.body.first_name,
-        LastName: req.body.last_name,
-        Email: req.body.email,
-        Telephone: req.body.telephone,
-    });
-
-    await newUser.save();
-
-    res.send("User_created");
+        res.send("User created").status(201);
+    }   
 });
 
-router.post('/update/:userId', async(req, res) => {
+router.put('/update/:userId', async(req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
 
@@ -45,19 +50,23 @@ router.post('/update/:userId', async(req, res) => {
     if (req.body.telephone) {
         aUser.Telephone = req.body.telephone;
     }
+    if (req.body.role) {
+        aUser.Role_id = req.body.role;
+    }
+    
 
     await aUser.save();
 
-    res.send("User_updated");
+    res.send("User updated").status(200);
 });
 
-router.post('/delete/:userId', async(req, res) => {
+router.delete('/delete/:userId', async(req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
 
     await aUser.destroy();
 
-    res.send("User_deleted");
+    res.send("User deleted").status(200);
 });
 
 module.exports = router;
