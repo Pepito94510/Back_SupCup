@@ -10,16 +10,16 @@ router.get('/', async(req, res) => {
 
 router.get('/:userId', async(req, res) => {
     let { userId } = req.params;
-    let unUser = await user.findByPk(userId);
-    res.status(200).json(unUser);
+    let aUser = await user.findByPk(userId);
+    res.status(200).json(aUser);
 });
 
 router.post('/create', async(req, res) => {
     console.log(req.body);
 
     const newUser = user.build({
-        Nom: req.body.nom,
-        Prenom: req.body.prenom,
+        FirstName: req.body.first_name,
+        LastName: req.body.last_name,
         Email: req.body.email,
         Telephone: req.body.telephone,
     });
@@ -33,11 +33,11 @@ router.post('/update/:userId', async(req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
 
-    if (req.body.nom) {
-        aUser.Nom = req.body.nom;
+    if (req.body.first_name) {
+        aUser.FirstName = req.body.first_name;
     }
-    if (req.body.prenom) {
-        aUser.Prenom = req.body.prenom;
+    if (req.body.last_name) {
+        aUser.LastName = req.body.last_name;
     }
     if (req.body.email) {
         aUser.Email = req.body.email;
