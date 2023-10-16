@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db:3306
--- Généré le : ven. 29 sep. 2023 à 09:47
+-- Généré le : lun. 16 oct. 2023 à 08:23
 -- Version du serveur : 5.7.42
 -- Version de PHP : 8.2.8
 
@@ -65,13 +65,25 @@ CREATE TABLE `EQUIPE` (
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `EQUIPE_EVENT`
+--
+
+CREATE TABLE `EQUIPE_EVENT` (
+  `Id` int(11) NOT NULL,
+  `Id_equipe` int(11) NOT NULL,
+  `Id_event` int(11) NOT NULL,
+  `Description` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `EVENT`
 --
 
 CREATE TABLE `EVENT` (
   `id` int(11) NOT NULL,
   `id_sport` int(11) NOT NULL,
-  `id_equipes` int(11) NOT NULL,
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -112,6 +124,13 @@ CREATE TABLE `ROLE` (
   `name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Déchargement des données de la table `ROLE`
+--
+
+INSERT INTO `ROLE` (`id`, `name`) VALUES
+(1, 'ROLE_USER');
+
 -- --------------------------------------------------------
 
 --
@@ -134,18 +153,19 @@ CREATE TABLE `USER` (
   `Nom` varchar(255) NOT NULL,
   `Prenom` varchar(255) NOT NULL,
   `Email` varchar(255) NOT NULL,
-  `Telephone` varchar(255) NOT NULL
+  `Telephone` varchar(255) NOT NULL,
+  `Role_id` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Déchargement des données de la table `USER`
 --
 
-INSERT INTO `USER` (`Id`, `Nom`, `Prenom`, `Email`, `Telephone`) VALUES
-(1, 'DUJARDIN', 'Jean', 'jean@dujardin.com', '09876567890'),
-(2, 'DAMIDO', 'Valerie', 'valerie@damido.com', '09876567899'),
-(3, 'NINET', 'Pierre', 'pierre@ninet.org', '456789876578'),
-(4, 'JAKSON', 'Michel', 'michel@jakson.com', '45678987652');
+INSERT INTO `USER` (`Id`, `Nom`, `Prenom`, `Email`, `Telephone`, `Role_id`) VALUES
+(1, 'DUJARDIN', 'Jean', 'jean@dujardin.com', '09876567890', 1),
+(2, 'DAMIDO', 'Valerie', 'valerie@damido.com', '09876567899', 1),
+(3, 'NINET', 'Pierre', 'pierre@ninet.org', '456789876578', 1),
+(4, 'JAKSON', 'Michel', 'michel@jakson.com', '45678987652', 1);
 
 -- --------------------------------------------------------
 
@@ -156,7 +176,7 @@ INSERT INTO `USER` (`Id`, `Nom`, `Prenom`, `Email`, `Telephone`) VALUES
 CREATE TABLE `USER_EVENT` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `is_event` int(11) NOT NULL,
+  `id_event` int(11) NOT NULL,
   `description` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -174,7 +194,9 @@ ALTER TABLE `BAR`
 -- Index pour la table `BAR_EVENT`
 --
 ALTER TABLE `BAR_EVENT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_bar` (`id_bar`,`id_event`),
+  ADD KEY `id_event` (`id_event`);
 
 --
 -- Index pour la table `EQUIPE`
@@ -183,22 +205,35 @@ ALTER TABLE `EQUIPE`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Index pour la table `EQUIPE_EVENT`
+--
+ALTER TABLE `EQUIPE_EVENT`
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `Id_equipe` (`Id_equipe`,`Id_event`),
+  ADD KEY `Id_event` (`Id_event`);
+
+--
 -- Index pour la table `EVENT`
 --
 ALTER TABLE `EVENT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_sport` (`id_sport`);
 
 --
 -- Index pour la table `FAV_EQUIPE`
 --
 ALTER TABLE `FAV_EQUIPE`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_user` (`id_user`,`id_equipe`),
+  ADD KEY `id_equipe` (`id_equipe`);
 
 --
 -- Index pour la table `FAV_SPORT`
 --
 ALTER TABLE `FAV_SPORT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_user` (`id_user`,`id_sport`),
+  ADD KEY `id_sport` (`id_sport`);
 
 --
 -- Index pour la table `ROLE`
@@ -216,13 +251,16 @@ ALTER TABLE `SPORT`
 -- Index pour la table `USER`
 --
 ALTER TABLE `USER`
-  ADD PRIMARY KEY (`Id`);
+  ADD PRIMARY KEY (`Id`),
+  ADD KEY `Role_id` (`Role_id`);
 
 --
 -- Index pour la table `USER_EVENT`
 --
 ALTER TABLE `USER_EVENT`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id_user` (`id_user`,`id_event`),
+  ADD KEY `is_event` (`id_event`);
 
 --
 -- AUTO_INCREMENT pour les tables déchargées
@@ -247,6 +285,12 @@ ALTER TABLE `EQUIPE`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT pour la table `EQUIPE_EVENT`
+--
+ALTER TABLE `EQUIPE_EVENT`
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `EVENT`
 --
 ALTER TABLE `EVENT`
@@ -268,7 +312,7 @@ ALTER TABLE `FAV_SPORT`
 -- AUTO_INCREMENT pour la table `ROLE`
 --
 ALTER TABLE `ROLE`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `SPORT`
@@ -287,6 +331,57 @@ ALTER TABLE `USER`
 --
 ALTER TABLE `USER_EVENT`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+--
+-- Contraintes pour la table `BAR_EVENT`
+--
+ALTER TABLE `BAR_EVENT`
+  ADD CONSTRAINT `BAR_EVENT_ibfk_1` FOREIGN KEY (`id_bar`) REFERENCES `BAR` (`id`),
+  ADD CONSTRAINT `BAR_EVENT_ibfk_2` FOREIGN KEY (`id_event`) REFERENCES `EVENT` (`id`);
+
+--
+-- Contraintes pour la table `EQUIPE_EVENT`
+--
+ALTER TABLE `EQUIPE_EVENT`
+  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_1` FOREIGN KEY (`Id_equipe`) REFERENCES `EQUIPE` (`id`),
+  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_2` FOREIGN KEY (`Id_event`) REFERENCES `EVENT` (`id`);
+
+--
+-- Contraintes pour la table `EVENT`
+--
+ALTER TABLE `EVENT`
+  ADD CONSTRAINT `EVENT_ibfk_1` FOREIGN KEY (`id_sport`) REFERENCES `SPORT` (`id`);
+
+--
+-- Contraintes pour la table `FAV_EQUIPE`
+--
+ALTER TABLE `FAV_EQUIPE`
+  ADD CONSTRAINT `FAV_EQUIPE_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `FAV_EQUIPE_ibfk_2` FOREIGN KEY (`id_equipe`) REFERENCES `EQUIPE` (`id`);
+
+--
+-- Contraintes pour la table `FAV_SPORT`
+--
+ALTER TABLE `FAV_SPORT`
+  ADD CONSTRAINT `FAV_SPORT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `FAV_SPORT_ibfk_2` FOREIGN KEY (`id_sport`) REFERENCES `SPORT` (`id`);
+
+--
+-- Contraintes pour la table `USER`
+--
+ALTER TABLE `USER`
+  ADD CONSTRAINT `USER_ibfk_1` FOREIGN KEY (`Role_id`) REFERENCES `ROLE` (`id`);
+
+--
+-- Contraintes pour la table `USER_EVENT`
+--
+ALTER TABLE `USER_EVENT`
+  ADD CONSTRAINT `USER_EVENT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `USER_EVENT_ibfk_2` FOREIGN KEY (`id_event`) REFERENCES `EVENT` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
