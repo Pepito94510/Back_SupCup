@@ -4,23 +4,23 @@ const sequelize = require('../utils/database');
 class user extends Model {};
 
 user.init({
-    Prenom: {
+    last_name: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    Nom: {
+    first_name: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    Email: {
+    email: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    Telephone: {
+    telephone: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    Role_id: {
+    role_id: {
         type: DataTypes.NUMBER,
         allowNull: true
     }
