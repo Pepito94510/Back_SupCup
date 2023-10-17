@@ -15,37 +15,67 @@ router.get('/:sportId', async(req, res) => {
 });
 
 router.post('/create', async(req, res) => {
-    console.log(req.body);
 
-    const newSport = sport.build({
-        Name: req.body.name,
-    });
+    // transform string on lowercase
+    let new_sport = req.body.name;
+    new_sport = new_sport.toString();
+    new_sport = new_sport.toLowerCase();
 
-    await newSport.save();
+    // check if sport is already in BDD
+    let check_sport = await sport.findOne({ where: { name: new_sport } });
 
-    res.send("Sport_created");
+    if(check_sport) {
+        res.status(200).json(req.body.name + ' already created');
+        console.log(req.body.name + ' already created'); 
+    } else {
+        const newSport = sport.build({
+            name: new_sport,
+        });
+        await newSport.save();
+
+        res.json("Sport : " + req.body.name +  " created");
+    }  
 });
 
-router.post('/update/:sportId', async(req, res) => {
+router.put('/update/:sportId', async(req, res) => {
+
+    // check all params
     let { sportId } = req.params;
-    let aSport = await sport.findByPk(sportId);
 
-    if (req.body.name) {
-        aSport.Name = req.body.name;
+    // check if name is not empty
+    if(!req.body.name) {
+        res.json('Error: no value');
+        console.log('Error: no value');
+    } else {
+        let sport_update = req.body.name;
+        sport_update = sport_update.toString().toLowerCase();
+
+        // check if value is ok with database
+        let aSport = await sport.findByPk(sportId);
+        let checkAllSports = await sport.findOne({ where: { name: sport_update } })
+
+        if(!aSport) {
+            console.log('sport not found');
+            res.json("Error: sport not found").status(404);
+        } else if (checkAllSports) {
+            res.json(sport_update + ' is already in database').status(200);
+            console.log(sport_update + ' is already in database');
+        } else {
+            aSport.name = sport_update;
+            await aSport.save();    
+    
+            res.json('sport updated').status(200);
+        }
     }
-
-    await aSport.save();
-
-    res.send("Sport_updated");
 });
 
-router.post('/delete/:sportId', async(req, res) => {
+router.delete('/delete/:sportId', async(req, res) => {
     let { sportId } = req.params;
     let aSport = await sport.findByPk(sportId);
 
     await aSport.destroy();
 
-    res.send("Sport_deleted");
+    res.json("Sport deleted").status(200);
 });
 
 module.exports = router;

@@ -4,7 +4,7 @@ const sequelize = require('../utils/database');
 class sport extends Model {};
 
 sport.init({
-    Name: {
+    name: {
         type: DataTypes.STRING,
         allowNull: true
     }

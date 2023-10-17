@@ -3,7 +3,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const sequelize = require('./utils/database');
 
+// Add route require here
 const routesUser = require('./routes/user');
+const routeSport = require('./routes/sport');
 
 const app = express();
 const port = 5001;
@@ -11,8 +13,14 @@ const port = 5001;
 app.use(cors());
 app.use(bodyParser());
 app.use(express.static('public'));
-app.use('/user', routesUser);
 
+
+// use differents routes here
+app.use('/user', routesUser);
+app.use('/sport', routeSport);
+
+
+// Global routes
 app.get('/', (req, res) => {
     res.status(200).send('Hello world !');
 });
