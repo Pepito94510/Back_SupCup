@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db:3306
--- Généré le : mar. 17 oct. 2023 à 07:09
+-- Généré le : mer. 18 oct. 2023 à 09:14
 -- Version du serveur : 5.7.42
 -- Version de PHP : 8.2.8
 
@@ -59,8 +59,15 @@ CREATE TABLE `EQUIPE` (
   `id` int(11) NOT NULL,
   `id_sport` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `logo` varchar(255) NOT NULL
+  `logo` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Déchargement des données de la table `EQUIPE`
+--
+
+INSERT INTO `EQUIPE` (`id`, `id_sport`, `name`, `logo`) VALUES
+(1, 1, 'Lognes', NULL);
 
 -- --------------------------------------------------------
 
@@ -141,6 +148,13 @@ CREATE TABLE `SPORT` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Déchargement des données de la table `SPORT`
+--
+
+INSERT INTO `SPORT` (`id`, `name`) VALUES
+(1, 'badminton');
 
 -- --------------------------------------------------------
 
@@ -282,7 +296,7 @@ ALTER TABLE `BAR_EVENT`
 -- AUTO_INCREMENT pour la table `EQUIPE`
 --
 ALTER TABLE `EQUIPE`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `EQUIPE_EVENT`
@@ -318,7 +332,7 @@ ALTER TABLE `ROLE`
 -- AUTO_INCREMENT pour la table `SPORT`
 --
 ALTER TABLE `SPORT`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `USER`
