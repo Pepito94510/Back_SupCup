@@ -21,23 +21,21 @@ router.post('/create', async(req, res) => {
         res.json('Error: check your parameters. id_sport and name are required').status(404);
         console.log('Error: id_sport or name are missing in parameters');
     } else {
-        let sport_requested = req.body.id_sport
-        let equipe_name_requested = req.body.name
-        equipe_name_requested = equipe_name_requested.toString();
-        equipe_name_requested = equipe_name_requested.toLowerCase();
-    
+        let sport_requested = req.body.id_sport;
+        let equipe_name_requested = req.body.name.toString().toLowerCase();
+
         // check if equipe is not already in database
-        let equipeBDD = await equipe.findOne({ where: { name: equipe_name_requested } });
-    
+        let equipeBDD = await equipe.findOne({ where: { name: equipe_name_requested, id_sport: sport_requested} });
+
         //check if id_sport exist in database
         let sportBDD = await sport.findByPk(sport_requested);
-    
+
         if(!sportBDD) {
             res.json('Error: this sport is not in database');
             console.log('Sport unknow');
-        } else if (equipeBDD) { 
-            res.status(200).json('Equipe already created')
-            console.log('Equipe already created') 
+        } else if (equipeBDD) {
+            res.status(200).json('Equipe already created');
+            console.log('Equipe already created');
         } else {
             const newEquipe = equipe.build({
                 id_sport: sport_requested,
@@ -58,41 +56,42 @@ router.put('/update/:equipeId', async(req, res) => {
     let aEquipe = await equipe.findByPk(equipeId);
 
     // check parameters and body
-    if (!aEquipe) { 
-        res.json('Error: check your parameters. id_sport and name are required').status(404);
-        console.log('Error: id_sport or name are missing in parameters');
-    } else if (!req.body.name || !req.body.id_sport) {
-        res.json('Error: check your parameters. id_sport and name are required').status(404);
-        console.log('Error: id_sport or name are missing in parameters');
+    if (!req.body.name && !req.body.id_sport && !req.body.logo) {
+        res.json('Error: check your parameters. Either id_sport or name or logo is required').status(404);
+        console.log('Error: id_sport or name or logo are missing in parameters');
     } else {
 
-        let id_sport_requested = req.body.id_sport;
+        let id_sport_requested = aEquipe.id_sport;
+        if (req.body.id_sport) {
+            id_sport_requested = req.body.id_sport;
+        }
 
         // check if equipe name is not already in database
-        let equipe_name_requested = req.body.name
-        equipe_name_requested = equipe_name_requested.toString();
-        equipe_name_requested = equipe_name_requested.toLowerCase();
+        let equipe_name_requested = req.body.name.toString().toLowerCase();
 
-        let equipeBDD = await equipe.findOne({ where: { name: equipe_name_requested } });
+        let equipeBDD = await equipe.findOne({ where: { name: equipe_name_requested, id_sport: id_sport_requested } });
         let sportId_BDD = await sport.findByPk(id_sport_requested);
 
-        // check if id_sport is in database
-        if (equipeBDD) {
-            res.json('Error: This equipe name is already in database').status(404);
-            console.log('Error: Error: This equipe name is already in database');
-        } else if (!sportId_BDD) {
-            res.json('Error: This id_sport is unknow').status(404);
-            console.log('Error: Error: This id_sport is unknow');
-        } else {
-
-            // Save equipe in database 
-            aEquipe.id_sport = id_sport_requested;
-            aEquipe.name = equipe_name_requested;
-            aEquipe.logo = req.body.logo;
-
-            await aEquipe.save();
-            res.json("Equipe updated").status(200);
+        if (req.body.name) {
+            if (!equipeBDD) {
+                aEquipe.name = req.body.name;
+            } else {
+                console.log('Error: This equipe name is already in database');
+            }
         }
+        if (req.body.id_sport) {
+            if (sportId_BDD) {
+                aEquipe.id_sport = req.body.id_sport;
+            } else {
+                console.log('Error: This id_sport is unknow');
+            }
+        }
+        if (req.body.logo) {
+            aEquipe.logo = req.body.logo;
+        }
+
+        await aEquipe.save();
+        res.json("Equipe updated").status(200);
     }
 });
 

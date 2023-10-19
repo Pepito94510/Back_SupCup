@@ -16,25 +16,28 @@ router.get('/:sportId', async(req, res) => {
 
 router.post('/create', async(req, res) => {
 
-    // transform string on lowercase
-    let new_sport = req.body.name;
-    new_sport = new_sport.toString();
-    new_sport = new_sport.toLowerCase();
-
-    // check if sport is already in BDD
-    let check_sport = await sport.findOne({ where: { name: new_sport } });
-
-    if(check_sport) {
-        res.status(200).json(req.body.name + ' already created');
-        console.log(req.body.name + ' already created'); 
+    if (!req.body.name) {
+        res.json('Error: check your parameters. name is required').status(404);
+        console.log('Error: name is missing in parameters');
     } else {
-        const newSport = sport.build({
-            name: new_sport,
-        });
-        await newSport.save();
+        // transform string on lowercase
+        let new_sport = req.body.name.toString().toLowerCase();
 
-        res.json("Sport : " + req.body.name +  " created");
-    }  
+        // check if sport is already in BDD
+        let check_sport = await sport.findOne({ where: { name: new_sport } });
+
+        if(check_sport) {
+            res.status(200).json(req.body.name + ' already created');
+            console.log(req.body.name + ' already created');
+        } else {
+            const newSport = sport.build({
+                name: new_sport,
+            });
+            await newSport.save();
+
+            res.json("Sport : " + req.body.name +  " created");
+        }
+    }
 });
 
 router.put('/update/:sportId', async(req, res) => {
@@ -62,7 +65,7 @@ router.put('/update/:sportId', async(req, res) => {
             console.log(sport_update + ' is already in database');
         } else {
             aSport.name = sport_update;
-            await aSport.save();    
+            await aSport.save();
     
             res.json('sport updated').status(200);
         }

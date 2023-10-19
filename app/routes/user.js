@@ -17,9 +17,9 @@ router.get('/:userId', async(req, res) => {
 router.post('/create', async(req, res) => {
     let userBDD = await user.findOne({ where: { email: req.body.email } });
     
-    if(userBDD) { 
-        res.status(200).json('User already created')
-        console.log('User already created') 
+    if(userBDD) {
+        res.status(200).json('User already created');
+        console.log('User already created');
     } else {
         const newUser = user.build({
             last_name: req.body.last_name,
@@ -31,7 +31,7 @@ router.post('/create', async(req, res) => {
         await newUser.save();
 
         res.json("User created").status(201);
-    }   
+    }
 });
 
 router.put('/update/:userId', async(req, res) => {
@@ -53,7 +53,6 @@ router.put('/update/:userId', async(req, res) => {
     if (req.body.role) {
         aUser.role_id = req.body.role;
     }
-    
 
     await aUser.save();
 

@@ -6,7 +6,7 @@ class sport extends Model {};
 sport.init({
     name: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     }
 }, {
     sequelize,
