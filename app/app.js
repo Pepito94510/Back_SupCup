@@ -7,6 +7,7 @@ const sequelize = require('./utils/database');
 const routesUser = require('./routes/user');
 const routeSport = require('./routes/sport');
 const routeEquipe = require('./routes/equipe');
+const routeEvent = require('./routes/event');
 
 const app = express();
 const port = 5001;
@@ -20,6 +21,7 @@ app.use(express.static('public'));
 app.use('/user', routesUser);
 app.use('/sport', routeSport);
 app.use('/equipe', routeEquipe);
+app.use('/event', routeEvent);
 
 
 // Global routes
