@@ -59,8 +59,10 @@ router.put('/update/:equipeId', async(req, res) => {
     if (!req.body.name && !req.body.id_sport && !req.body.logo) {
         res.json('Error: check your parameters. Either id_sport or name or logo is required').status(404);
         console.log('Error: id_sport or name or logo are missing in parameters');
+    } else if (!aEquipe) {
+        res.json('Error: This equipe is unknow in database').status(404);
+        console.log('Error: This equipe is unknow in database');
     } else {
-
         let id_sport_requested = aEquipe.id_sport;
         if (req.body.id_sport) {
             id_sport_requested = req.body.id_sport;

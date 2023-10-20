@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db:3306
--- Généré le : mer. 18 oct. 2023 à 09:14
+-- Généré le : jeu. 19 oct. 2023 à 13:44
 -- Version du serveur : 5.7.42
 -- Version de PHP : 8.2.8
 
@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `BAR` (
   `id` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
   `postcode` int(11) NOT NULL,
@@ -45,8 +46,7 @@ CREATE TABLE `BAR` (
 CREATE TABLE `BAR_EVENT` (
   `id` int(11) NOT NULL,
   `id_bar` int(11) NOT NULL,
-  `id_event` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_event` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -78,8 +78,7 @@ INSERT INTO `EQUIPE` (`id`, `id_sport`, `name`, `logo`) VALUES
 CREATE TABLE `EQUIPE_EVENT` (
   `id` int(11) NOT NULL,
   `id_equipe` int(11) NOT NULL,
-  `id_event` int(11) NOT NULL,
-  `description` int(11) NOT NULL
+  `id_event` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -91,6 +90,7 @@ CREATE TABLE `EQUIPE_EVENT` (
 CREATE TABLE `EVENT` (
   `id` int(11) NOT NULL,
   `id_sport` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -103,8 +103,7 @@ CREATE TABLE `EVENT` (
 CREATE TABLE `FAV_EQUIPE` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_equipe` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_equipe` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -116,8 +115,7 @@ CREATE TABLE `FAV_EQUIPE` (
 CREATE TABLE `FAV_SPORT` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_sport` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_sport` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -190,8 +188,7 @@ INSERT INTO `USER` (`id`, `last_name`, `first_name`, `email`, `telephone`, `role
 CREATE TABLE `USER_EVENT` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_event` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_event` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -202,7 +199,8 @@ CREATE TABLE `USER_EVENT` (
 -- Index pour la table `BAR`
 --
 ALTER TABLE `BAR`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_user` (`id_user`);
 
 --
 -- Index pour la table `BAR_EVENT`
@@ -349,6 +347,12 @@ ALTER TABLE `USER_EVENT`
 --
 -- Contraintes pour les tables déchargées
 --
+
+--
+-- Contraintes pour la table `BAR`
+--
+ALTER TABLE `BAR`
+  ADD CONSTRAINT `BAR_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`id`);
 
 --
 -- Contraintes pour la table `BAR_EVENT`
