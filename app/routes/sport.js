@@ -50,8 +50,7 @@ router.put('/update/:sportId', async(req, res) => {
         res.json('Error: no value');
         console.log('Error: no value');
     } else {
-        let sport_update = req.body.name;
-        sport_update = sport_update.toString().toLowerCase();
+        let sport_update = req.body.name.toString().toLowerCase();
 
         // check if value is ok with database
         let aSport = await sport.findByPk(sportId);
@@ -76,9 +75,14 @@ router.delete('/delete/:sportId', async(req, res) => {
     let { sportId } = req.params;
     let aSport = await sport.findByPk(sportId);
 
-    await aSport.destroy();
+    if (!aSport) {
+        res.json('Error: This sportId is unknow').status(404);
+        console.log('Error: This sportId is unknow');
+    } else {
+        await aSport.destroy();
 
-    res.json("Sport deleted").status(200);
+        res.json("Sport deleted").status(200);
+    }
 });
 
 module.exports = router;
