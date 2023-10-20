@@ -30,7 +30,7 @@ services:
     ports:
       - "6033:3306"
     volumes:
-      - ./app/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - dbdata:/var/lib/mysql
     healthcheck:
       test: ['CMD', 'mysqladmin','ping', '-h', 'localhost']
       timeout: 20s
@@ -51,6 +51,9 @@ services:
       - 8081:80
     networks:
       - mysql-phpmyadmin
+
+volumes:
+  dbdata:
 
 networks:
   mysql-phpmyadmin:
