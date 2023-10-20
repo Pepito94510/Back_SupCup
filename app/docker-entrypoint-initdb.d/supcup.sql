@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : db:3306
--- Généré le : lun. 16 oct. 2023 à 08:23
+-- Généré le : jeu. 19 oct. 2023 à 13:44
 -- Version du serveur : 5.7.42
 -- Version de PHP : 8.2.8
 
@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `BAR` (
   `id` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
   `postcode` int(11) NOT NULL,
@@ -45,8 +46,7 @@ CREATE TABLE `BAR` (
 CREATE TABLE `BAR_EVENT` (
   `id` int(11) NOT NULL,
   `id_bar` int(11) NOT NULL,
-  `id_event` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_event` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -59,8 +59,15 @@ CREATE TABLE `EQUIPE` (
   `id` int(11) NOT NULL,
   `id_sport` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `logo` varchar(255) NOT NULL
+  `logo` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Déchargement des données de la table `EQUIPE`
+--
+
+INSERT INTO `EQUIPE` (`id`, `id_sport`, `name`, `logo`) VALUES
+(1, 1, 'Lognes', NULL);
 
 -- --------------------------------------------------------
 
@@ -69,10 +76,9 @@ CREATE TABLE `EQUIPE` (
 --
 
 CREATE TABLE `EQUIPE_EVENT` (
-  `Id` int(11) NOT NULL,
-  `Id_equipe` int(11) NOT NULL,
-  `Id_event` int(11) NOT NULL,
-  `Description` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `id_equipe` int(11) NOT NULL,
+  `id_event` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -84,6 +90,7 @@ CREATE TABLE `EQUIPE_EVENT` (
 CREATE TABLE `EVENT` (
   `id` int(11) NOT NULL,
   `id_sport` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -96,8 +103,7 @@ CREATE TABLE `EVENT` (
 CREATE TABLE `FAV_EQUIPE` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_equipe` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_equipe` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -109,8 +115,7 @@ CREATE TABLE `FAV_EQUIPE` (
 CREATE TABLE `FAV_SPORT` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_sport` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_sport` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -142,6 +147,13 @@ CREATE TABLE `SPORT` (
   `name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Déchargement des données de la table `SPORT`
+--
+
+INSERT INTO `SPORT` (`id`, `name`) VALUES
+(1, 'badminton');
+
 -- --------------------------------------------------------
 
 --
@@ -149,19 +161,19 @@ CREATE TABLE `SPORT` (
 --
 
 CREATE TABLE `USER` (
-  `Id` int(11) NOT NULL,
-  `Nom` varchar(255) NOT NULL,
-  `Prenom` varchar(255) NOT NULL,
-  `Email` varchar(255) NOT NULL,
-  `Telephone` varchar(255) NOT NULL,
-  `Role_id` int(10) DEFAULT NULL
+  `id` int(11) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `first_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `telephone` varchar(255) NOT NULL,
+  `role_id` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Déchargement des données de la table `USER`
 --
 
-INSERT INTO `USER` (`Id`, `Nom`, `Prenom`, `Email`, `Telephone`, `Role_id`) VALUES
+INSERT INTO `USER` (`id`, `last_name`, `first_name`, `email`, `telephone`, `role_id`) VALUES
 (1, 'DUJARDIN', 'Jean', 'jean@dujardin.com', '09876567890', 1),
 (2, 'DAMIDO', 'Valerie', 'valerie@damido.com', '09876567899', 1),
 (3, 'NINET', 'Pierre', 'pierre@ninet.org', '456789876578', 1),
@@ -176,8 +188,7 @@ INSERT INTO `USER` (`Id`, `Nom`, `Prenom`, `Email`, `Telephone`, `Role_id`) VALU
 CREATE TABLE `USER_EVENT` (
   `id` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_event` int(11) NOT NULL,
-  `description` varchar(255) NOT NULL
+  `id_event` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -188,7 +199,8 @@ CREATE TABLE `USER_EVENT` (
 -- Index pour la table `BAR`
 --
 ALTER TABLE `BAR`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_user` (`id_user`);
 
 --
 -- Index pour la table `BAR_EVENT`
@@ -208,9 +220,9 @@ ALTER TABLE `EQUIPE`
 -- Index pour la table `EQUIPE_EVENT`
 --
 ALTER TABLE `EQUIPE_EVENT`
-  ADD PRIMARY KEY (`Id`),
-  ADD KEY `Id_equipe` (`Id_equipe`,`Id_event`),
-  ADD KEY `Id_event` (`Id_event`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `Id_equipe` (`id_equipe`,`id_event`),
+  ADD KEY `Id_event` (`id_event`);
 
 --
 -- Index pour la table `EVENT`
@@ -251,8 +263,8 @@ ALTER TABLE `SPORT`
 -- Index pour la table `USER`
 --
 ALTER TABLE `USER`
-  ADD PRIMARY KEY (`Id`),
-  ADD KEY `Role_id` (`Role_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `Role_id` (`role_id`);
 
 --
 -- Index pour la table `USER_EVENT`
@@ -282,13 +294,13 @@ ALTER TABLE `BAR_EVENT`
 -- AUTO_INCREMENT pour la table `EQUIPE`
 --
 ALTER TABLE `EQUIPE`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `EQUIPE_EVENT`
 --
 ALTER TABLE `EQUIPE_EVENT`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `EVENT`
@@ -318,13 +330,13 @@ ALTER TABLE `ROLE`
 -- AUTO_INCREMENT pour la table `SPORT`
 --
 ALTER TABLE `SPORT`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `USER`
 --
 ALTER TABLE `USER`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `USER_EVENT`
@@ -337,6 +349,12 @@ ALTER TABLE `USER_EVENT`
 --
 
 --
+-- Contraintes pour la table `BAR`
+--
+ALTER TABLE `BAR`
+  ADD CONSTRAINT `BAR_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`id`);
+
+--
 -- Contraintes pour la table `BAR_EVENT`
 --
 ALTER TABLE `BAR_EVENT`
@@ -347,8 +365,8 @@ ALTER TABLE `BAR_EVENT`
 -- Contraintes pour la table `EQUIPE_EVENT`
 --
 ALTER TABLE `EQUIPE_EVENT`
-  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_1` FOREIGN KEY (`Id_equipe`) REFERENCES `EQUIPE` (`id`),
-  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_2` FOREIGN KEY (`Id_event`) REFERENCES `EVENT` (`id`);
+  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_1` FOREIGN KEY (`id_equipe`) REFERENCES `EQUIPE` (`id`),
+  ADD CONSTRAINT `EQUIPE_EVENT_ibfk_2` FOREIGN KEY (`id_event`) REFERENCES `EVENT` (`id`);
 
 --
 -- Contraintes pour la table `EVENT`
@@ -360,27 +378,27 @@ ALTER TABLE `EVENT`
 -- Contraintes pour la table `FAV_EQUIPE`
 --
 ALTER TABLE `FAV_EQUIPE`
-  ADD CONSTRAINT `FAV_EQUIPE_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `FAV_EQUIPE_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`id`),
   ADD CONSTRAINT `FAV_EQUIPE_ibfk_2` FOREIGN KEY (`id_equipe`) REFERENCES `EQUIPE` (`id`);
 
 --
 -- Contraintes pour la table `FAV_SPORT`
 --
 ALTER TABLE `FAV_SPORT`
-  ADD CONSTRAINT `FAV_SPORT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `FAV_SPORT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`id`),
   ADD CONSTRAINT `FAV_SPORT_ibfk_2` FOREIGN KEY (`id_sport`) REFERENCES `SPORT` (`id`);
 
 --
 -- Contraintes pour la table `USER`
 --
 ALTER TABLE `USER`
-  ADD CONSTRAINT `USER_ibfk_1` FOREIGN KEY (`Role_id`) REFERENCES `ROLE` (`id`);
+  ADD CONSTRAINT `USER_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `ROLE` (`id`);
 
 --
 -- Contraintes pour la table `USER_EVENT`
 --
 ALTER TABLE `USER_EVENT`
-  ADD CONSTRAINT `USER_EVENT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`Id`),
+  ADD CONSTRAINT `USER_EVENT_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `USER` (`id`),
   ADD CONSTRAINT `USER_EVENT_ibfk_2` FOREIGN KEY (`id_event`) REFERENCES `EVENT` (`id`);
 COMMIT;
 
