@@ -5,6 +5,7 @@ const { QueryTypes } = require('sequelize');
 
 const user = require('../models/user');
 const sport = require('../models/sport');
+const equipe = require('../models/equipe');
 
 const sequelize = require('../utils/database');
 
@@ -74,7 +75,7 @@ router.delete('/delete/:userId', async (req, res) => {
 });
 
 
-// ROUTE API WITH JOIN
+// ROUTE API WITH JOIN FOR FAV SPORT
 
 router.get('/favorite_sport/:userId', async (req, res) => {
     let { userId } = req.params;
@@ -169,7 +170,106 @@ router.delete('/favorite_sport/:userId', async (req, res) => {
                         type: QueryTypes.DELETE
                     }
                 );
-                res.json("Relation deleted").status(201);
+                res.json("Relation deleted").status(200);
+                console.log("Suppresion d'un sport favori sur un user");
+            }
+        }
+    }
+});
+
+// ROUTE API WITH JOIN FOR FAV TEAMS
+
+router.get('/favorite_teams/:userId', async (req, res) => {
+    let { userId } = req.params;
+
+    let aUser = await user.findByPk(userId);
+    if (!aUser) {
+        res.json("Error: This userId is unknow in database").status(404);
+        console.log("Error: This userId is unknow in database");
+    } else {
+        const favorite_sport_from_user = await sequelize.query(
+            "SELECT EQUIPE.id, EQUIPE.name FROM EQUIPE LEFT JOIN FAV_EQUIPE ON EQUIPE.id = FAV_EQUIPE.id_equipe LEFT JOIN USER ON FAV_EQUIPE.id_user = USER.id WHERE USER.id = :id_user",
+            {
+                replacements: { id_user: userId },
+                type: QueryTypes.SELECT
+            }
+        );
+        res.status(200).json(favorite_sport_from_user);
+    }
+});
+
+router.post('/favorite_teams/:userId', async (req, res) => {
+    let { userId } = req.params;
+
+    let aUser = await user.findByPk(userId);
+    if (!aUser) {
+        res.json("Error: This userId is unknow in database").status(404);
+        console.log("Error: This userId is unknow in database");
+    } else {
+        let equipeId = req.body.id_equipe;
+        let check_equipeId = await equipe.findByPk(equipeId);
+        if (!check_equipeId) {
+            res.json("Error: This equipeId is unknow in database").status(404);
+            console.log("Error: This equipeId is unknow in database");
+        } else {
+            const [result, metadata] = await sequelize.query(
+                "SELECT id FROM `FAV_EQUIPE` WHERE `id_user` = :id_user AND `id_equipe` = :id_equipe",
+                {
+                    replacements: { id_user: userId, id_equipe: equipeId },
+                    type: QueryTypes.SELECT
+                }
+            );
+            if (result) {
+                res.json("Error: This relation is already in database").status(404);
+                console.log("Error: This relation is already in database");
+            } else {
+                const add_favorite_equipe = await sequelize.query(
+                    "INSERT INTO `FAV_EQUIPE`(`id`, `id_user`, `id_equipe`) VALUES (null, :id_user, :id_equipe)",
+                    {
+                        replacements: { id_user: userId, id_equipe: equipeId },
+                        type: QueryTypes.INSERT
+                    }
+                );
+                res.json("Relation created").status(201);
+                console.log("Ajout d'un sport favori sur un user");
+            }
+        }
+    }
+});
+
+router.delete('/favorite_teams/:userId', async (req, res) => {
+    let { userId } = req.params;
+
+    let aUser = await user.findByPk(userId);
+    if (!aUser) {
+        res.json("Error: This userId is unknow in database").status(404);
+        console.log("Error: This userId is unknow in database");
+    } else {
+        let equipeId = req.body.id_equipe;
+        let check_equipeId = await equipe.findByPk(equipeId);
+        if (!check_equipeId) {
+            res.json("Error: This equipeId is unknow in database").status(404);
+            console.log("Error: This equipeId is unknow in database");
+        } else {
+            const [result, metadata] = await sequelize.query(
+                "SELECT id FROM `FAV_EQUIPE` WHERE `id_user` = :id_user AND `id_equipe` = :id_equipe",
+                {
+                    replacements: { id_user: userId, id_equipe: equipeId },
+                    type: QueryTypes.SELECT
+                }
+            );
+            if (!result) {
+                res.json("Error: This relation is unknow in database").status(404);
+                console.log("Error: This relation is unknow in database");
+            } else {
+                const add_favorite_sport = await sequelize.query(
+                    "DELETE FROM `FAV_EQUIPE` WHERE `id` = :id",
+                    {
+                        replacements: { id: result["id"] },
+                        type: QueryTypes.DELETE
+                    }
+                );
+                res.json("Relation deleted").status(200);
                 console.log("Suppresion d'un sport favori sur un user");
             }
         }
