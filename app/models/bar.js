@@ -4,31 +4,31 @@ const sequelize = require('../utils/database');
 class bar extends Model {};
 
 bar.init({
-    Name: {
+    name: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    Address: {
+    address: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    Postcode: {
+    postcode: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    City: {
+    city: {
         type: DataTypes.STRING,
         allowNull: true
     },
-    Email: {
+    mail: {
         type: DataTypes.STRING,
         allowNull: true
     }
 }, {
     sequelize,
     timestamps: false,
-    tableName: 'USER',
-    modelName: 'user'
+    tableName: 'BAR',
+    modelName: 'bar'
 })
 
 module.exports = bar;
