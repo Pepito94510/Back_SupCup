@@ -63,16 +63,21 @@ router.put('/update/:userId', async (req, res) => {
 
     await aUser.save();
 
-    res.json("User updated").status(200);
+    res.json("User is updated").status(200);
 });
 
 router.delete('/delete/:userId', async (req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
 
-    await aUser.destroy();
+    if (!aUser) {
+        res.json('Error: This userId is unknow').status(404);
+        console.log('Error: This userId is unknow');
+    } else {
+        await aUser.destroy();
 
-    res.json("User deleted").status(200);
+        res.json("User deleted").status(200);
+    }
 });
 
 

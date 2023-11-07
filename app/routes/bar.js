@@ -7,34 +7,60 @@ const bar = require('../models/bar');
 const sequelize = require('../utils/database');
 const event = require('../models/event');
 
-router.get('/', async(req, res) => {
+router.get('/', async (req, res) => {
     let bars = await bar.findAll();
     res.status(200).json(bars);
 });
 
-router.get('/:barId', async(req, res) => {
+router.get('/:barId', async (req, res) => {
     let { barId } = req.params;
     let aBar = await bar.findByPk(barId);
     res.status(200).json(aBar);
 });
 
-router.post('/create', async(req, res) => {
-    console.log(req.body);
+router.post('/create', async (req, res) => {
+    if (!req.body.name) {
+        res.json('Error: name is required')
+    }
+    if (!req.body.address) {
+        res.json('Error: address is required')
+    }
+    if (!req.body.postcode) {
+        res.json('Error: postcode is required')
+    }
+    if (!req.body.city) {
+        res.json('Error: city is required')
+    }
+    if (!req.body.mail) {
+        res.json('Error: mail is required')
+    }
+    let barBDD = await bar.findOne({
+        where: {
+            name: req.body.name,
+            address: req.body.address,
+            postcode: req.body.postcode,
+            city: req.body.city,
+            mail: req.body.mail
+        }
+    })
+    if (barBDD) {
+        res.status(200).json('Bar already created');
+        console.log('Bar is already created');
+    } else {
+        const newBar = bar.build({
+            name: req.body.name,
+            address: req.body.address,
+            postcode: req.body.postcode,
+            city: req.body.city,
+            mail: req.body.mail,
+        });
+        await newBar.save();
 
-    const newBar = bar.build({
-        name: req.body.name,
-        address: req.body.address,
-        postcode: req.body.postcode,
-        city: req.body.city,
-        mail: req.body.mail,
-    });
-
-    await newBar.save();
-
-    res.send("Bar_created");
+        res.json("Bar is created").status(201);
+    }
 });
 
-router.post('/update/:barId', async(req, res) => {
+router.post('/update/:barId', async (req, res) => {
     let { barId } = req.params;
     let aBar = await bar.findByPk(barId);
 
@@ -56,16 +82,21 @@ router.post('/update/:barId', async(req, res) => {
 
     await aBar.save();
 
-    res.send("Bar_updated");
+    res.json("Bar is updated").status(200);
 });
 
-router.post('/delete/:barId', async(req, res) => {
+router.post('/delete/:barId', async (req, res) => {
     let { barId } = req.params;
     let aBar = await bar.findByPk(barId);
 
-    await aBar.destroy();
+    if (!aBar) {
+        res.json('Error: This barId is unknow').status(404);
+        console.log('Error: This barId is unknow');
+    } else {
+        await aBar.destroy();
 
-    res.send("Bar_deleted");
+        res.json("Bar deleted").status(200);
+    }
 });
 
 // ROUTE API WITH JOIN FOR EVENTS
