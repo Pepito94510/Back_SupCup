@@ -8,6 +8,7 @@ const routesUser = require('./routes/user');
 const routeSport = require('./routes/sport');
 const routeEquipe = require('./routes/equipe');
 const routeEvent = require('./routes/event');
+const routeBar = require('./routes/bar');
 
 const app = express();
 const port = 5001;
@@ -22,6 +23,7 @@ app.use('/user', routesUser);
 app.use('/sport', routeSport);
 app.use('/equipe', routeEquipe);
 app.use('/event', routeEvent);
+app.use('/bar', routeBar);
 
 
 // Global routes
