@@ -6,6 +6,7 @@ const { QueryTypes } = require('sequelize');
 const user = require('../models/user');
 const sport = require('../models/sport');
 const equipe = require('../models/equipe');
+const event = require('../models/event');
 
 const sequelize = require('../utils/database');
 
@@ -264,6 +265,105 @@ router.delete('/favorite_teams/:userId', async (req, res) => {
             } else {
                 const add_favorite_sport = await sequelize.query(
                     "DELETE FROM `FAV_EQUIPE` WHERE `id` = :id",
+                    {
+                        replacements: { id: result["id"] },
+                        type: QueryTypes.DELETE
+                    }
+                );
+                res.json("Relation deleted").status(200);
+                console.log("Suppresion d'un sport favori sur un user");
+            }
+        }
+    }
+});
+
+// ROUTE API WITH JOIN FOR EVENTS
+
+router.get('/events/:userId', async (req, res) => {
+    let { userId } = req.params;
+
+    let aUser = await user.findByPk(userId);
+    if (!aUser) {
+        res.json("Error: This userId is unknow in database").status(404);
+        console.log("Error: This userId is unknow in database");
+    } else {
+        const favorite_sport_from_user = await sequelize.query(
+            "SELECT EVENT.id, EVENT.name, EVENT.description FROM EVENT LEFT JOIN USER_EVENT ON EVENT.id = USER_EVENT.id_event LEFT JOIN USER ON USER_EVENT.id_user = USER.id WHERE USER.id = :id_user",
+            {
+                replacements: { id_user: userId },
+                type: QueryTypes.SELECT
+            }
+        );
+        res.status(200).json(favorite_sport_from_user);
+    }
+});
+
+router.post('/events/:userId', async (req, res) => {
+    let { userId } = req.params;
+
+    let aUser = await user.findByPk(userId);
+    if (!aUser) {
+        res.json("Error: This userId is unknow in database").status(404);
+        console.log("Error: This userId is unknow in database");
+    } else {
+        let eventId = req.body.id_event;
+        let check_eventId = await event.findByPk(eventId);
+        if (!check_eventId) {
+            res.json("Error: This eventId is unknow in database").status(404);
+            console.log("Error: This eventId is unknow in database");
+        } else {
+            const [result, metadata] = await sequelize.query(
+                "SELECT id FROM `USER_EVENT` WHERE `id_user` = :id_user AND `id_event` = :id_event",
+                {
+                    replacements: { id_user: userId, id_event: eventId },
+                    type: QueryTypes.SELECT
+                }
+            );
+            if (result) {
+                res.json("Error: This relation is already in database").status(404);
+                console.log("Error: This relation is already in database");
+            } else {
+                const user_participe_event = await sequelize.query(
+                    "INSERT INTO `USER_EVENT`(`id`, `id_user`, `id_event`) VALUES (null, :id_user, :id_event)",
+                    {
+                        replacements: { id_user: userId, id_event: eventId },
+                        type: QueryTypes.INSERT
+                    }
+                );
+                res.json("Relation created").status(201);
+                console.log("Un user participe à un évènement");
+            }
+        }
+    }
+});
+
+router.delete('/events/:userId', async (req, res) => {
+    let { userId } = req.params;
+
+    let aUser = await user.findByPk(userId);
+    if (!aUser) {
+        res.json("Error: This userId is unknow in database").status(404);
+        console.log("Error: This userId is unknow in database");
+    } else {
+        let eventId = req.body.id_event;
+        let check_eventId = await event.findByPk(eventId);
+        if (!check_eventId) {
+            res.json("Error: This eventId is unknow in database").status(404);
+            console.log("Error: This eventId is unknow in database");
+        } else {
+            const [result, metadata] = await sequelize.query(
+                "SELECT id FROM `USER_EVENT` WHERE `id_user` = :id_user AND `id_event` = :id_event",
+                {
+                    replacements: { id_user: userId, id_event: eventId },
+                    type: QueryTypes.SELECT
+                }
+            );
+            if (!result) {
+                res.json("Error: This relation is unknow in database").status(404);
+                console.log("Error: This relation is unknow in database");
+            } else {
+                const delete_participation = await sequelize.query(
+                    "DELETE FROM `USER_EVENT` WHERE `id` = :id",
                     {
                         replacements: { id: result["id"] },
                         type: QueryTypes.DELETE
