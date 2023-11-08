@@ -7,17 +7,79 @@ const bar = require('../models/bar');
 const sequelize = require('../utils/database');
 const event = require('../models/event');
 
+/**
+ * @swagger
+ * 
+ *  components:
+ *      schema:
+ *          bar:
+ *              type: object
+ *              properties: 
+ *                  name:
+ *                      type: string
+ *                  address:
+ *                      type: string
+ *                  postcode:
+ *                      type: integer
+ *                  city:
+ *                      type: string
+ *                  mail:
+ *                      type: string
+ *          bar_event:
+ *              type: object
+ *              properties:
+ *                  id_event:   
+ *                      type: integer
+ */
+
 router.get('/', async (req, res) => {
     let bars = await bar.findAll();
     res.status(200).json(bars);
 });
 
+/**
+ * @swagger
+ * /bar/{barId}:
+ *  get:
+ *      tags: 
+ *          - Bar
+ *      description: Retourne les informations d'un bar en fonction de son id
+ *      parameters: 
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *      responses: 
+ *          200:
+ *              description: Retourne les informations d'un bar
+ *          404:
+ *              description: L'id bar saisie n'est pas connu ne base de données
+ */
 router.get('/:barId', async (req, res) => {
     let { barId } = req.params;
     let aBar = await bar.findByPk(barId);
     res.status(200).json(aBar);
 });
 
+/**
+ * @swagger
+ * /bar/create:
+ *  post:
+ *      tags: 
+ *          - Bar
+ *      description: Créer un bar
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar'
+ *      responses: 
+ *          201:
+ *              description: Créer un nouveau bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: Le bar existe déjà en base de données
+ */
 router.post('/create', async (req, res) => {
     if (!req.body.name) {
         res.json('Error: name is required')
@@ -60,7 +122,29 @@ router.post('/create', async (req, res) => {
     }
 });
 
-router.post('/update/:barId', async (req, res) => {
+/**
+ * @swagger
+ * /bar/update/{barId}:
+ *  put:
+ *      tags: 
+ *          - Bar
+ *      description: Modifie un bar
+ *      parameters: 
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar'
+ *      responses: 
+ *          201:
+ *              description: Modifie un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
+router.put('/update/:barId', async (req, res) => {
     let { barId } = req.params;
     let aBar = await bar.findByPk(barId);
 
@@ -85,7 +169,24 @@ router.post('/update/:barId', async (req, res) => {
     res.json("Bar is updated").status(200);
 });
 
-router.post('/delete/:barId', async (req, res) => {
+/**
+ * @swagger
+ * /bar/delete/{barId}:
+ *  delete:
+ *      tags: 
+ *          - Bar
+ *      description: Modifie un bar
+ *      parameters: 
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *      responses: 
+ *          200:
+ *              description: Supprime un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
+router.delete('/delete/:barId', async (req, res) => {
     let { barId } = req.params;
     let aBar = await bar.findByPk(barId);
 
@@ -101,6 +202,23 @@ router.post('/delete/:barId', async (req, res) => {
 
 // ROUTE API WITH JOIN FOR EVENTS
 
+/**
+ * @swagger
+ * /bar/events/{barId}:
+ *  get:
+ *      tags: 
+ *          - Bar
+ *      description: Récupère les évènements liés à un bar
+ *      parameters: 
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *      responses: 
+ *          200:
+ *              description: Récupère les évènements liés à un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.get('/events/:barId', async (req, res) => {
     let { barId } = req.params;
 
@@ -120,6 +238,28 @@ router.get('/events/:barId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /bar/events/{barId}:
+ *  post:
+ *      tags: 
+ *          - Bar
+ *      description: Ajoute un évènement à un bar
+ *      parameters: 
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar_event'
+ *      responses: 
+ *          201:
+ *              description: Ajoute un évènement à un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.post('/events/:barId', async (req, res) => {
     let { barId } = req.params;
 
@@ -159,6 +299,28 @@ router.post('/events/:barId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /bar/events/{barId}:
+ *  delete:
+ *      tags: 
+ *          - Bar
+ *      description: Supprime un évènement à un bar
+ *      parameters: 
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar_event'
+ *      responses: 
+ *          200:
+ *              description: Supprime un évènement à un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/events/:barId', async (req, res) => {
     let { barId } = req.params;
 
