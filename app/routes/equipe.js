@@ -4,17 +4,70 @@ var router = express.Router();
 const equipe = require('../models/equipe');
 const sport = require('../models/sport');
 
+/**
+ * @swagger
+ * 
+ *  components:
+ *      schema:
+ *          equipe:
+ *              type: object
+ *              properties: 
+ *                  id_sport:
+ *                      type: integer
+ *                  name: 
+ *                      type: string
+ *                  logo: 
+ *                      type: string
+ */
+
 router.get('/', async(req, res) => {
     let equipes = await equipe.findAll();
     res.status(200).json(equipes);
 });
 
+/**
+ * @swagger
+ * /equipe/{equipeId}:
+ *  get:
+ *      tags: 
+ *          - Equipe
+ *      description: Retourne les informations d'une équipe en fonction de son id
+ *      parameters: 
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *      responses: 
+ *          200:
+ *              description: Retourne les informations d'une équipe
+ *          404:
+ *              description: L'id équipe saisie n'est pas connu ne base de données
+ */
 router.get('/:equipeId', async(req, res) => {
     let { equipeId } = req.params;
     let aEquipe = await equipe.findByPk(equipeId);
     res.status(200).json(aEquipe);
 });
 
+/**
+ * @swagger
+ * /equipe/create:
+ *  post:
+ *      tags: 
+ *          - Equipe
+ *      description: Créer une équipe
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/equipe'
+ *      responses: 
+ *          201:
+ *              description: Retourne les informations d'une équipe unique
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: L'équipe existe déjà en base de données
+ */
 router.post('/create', async(req, res) => {
 
     if (!req.body.name || !req.body.id_sport) {
@@ -50,6 +103,28 @@ router.post('/create', async(req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /equipe/update/{equipeId}:
+ *  put:
+ *      tags: 
+ *          - Equipe
+ *      description: Modifie une équipe
+ *      parameters: 
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/equipe'
+ *      responses: 
+ *          200:
+ *              description: Modifie les informations d'une équipe unique
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.put('/update/:equipeId', async(req, res) => {
 
     let { equipeId } = req.params;
@@ -97,6 +172,23 @@ router.put('/update/:equipeId', async(req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /equipe/delete/{equipeId}:
+ *  delete:
+ *      tags: 
+ *          - Equipe
+ *      description: Supprime une équipe
+ *      parameters: 
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *      responses: 
+ *          200:
+ *              description: Supprime les informations d'une équipe unique
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/delete/:equipeId', async(req, res) => {
     let { equipeId } = req.params;
     let aEquipe = await equipe.findByPk(equipeId);
