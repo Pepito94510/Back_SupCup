@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 const { QueryTypes } = require('sequelize');
 
-
 const user = require('../models/user');
 const sport = require('../models/sport');
 const equipe = require('../models/equipe');
@@ -10,22 +9,100 @@ const event = require('../models/event');
 
 const sequelize = require('../utils/database');
 
+/**
+ * @swagger
+ * 
+ *  components:
+ *      schema:
+ *          user:
+ *              type: object
+ *              properties: 
+ *                  last_name:
+ *                      type: string
+ *                  first_name: 
+ *                      type: string
+ *                  email: 
+ *                      type: string
+ *                  telephone: 
+ *                      type: string
+ *                  role_id:        
+ *                      type: integer
+ *          user_fav_sport:
+ *              type: object
+ *              properties:
+ *                  id_sport:
+ *                      type: integer
+ *          user_fav_equipe:
+ *              type: object
+ *              properties: 
+ *                  id_equipe:
+ *                      type: integer
+ *          user_event:
+ *              type: object
+ *              properties:
+ *                  id_event:
+ *                      type: integer
+ */
+
 router.get('/', async (req, res) => {
     let users = await user.findAll();
     res.status(200).json(users);
 });
 
+/**
+ * @swagger
+ * /user/{userId}:
+ *  get:
+ *      tags: 
+ *          - User
+ *      description: Retourne les informations d'un utilisateur à partir de son Id
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      responses: 
+ *          200:
+ *              description: Retourne les informations d'un utilisateur unique
+ *          404:
+ *              description: L'id utilisateur saisie n'est pas connu ne base de données
+ */
 router.get('/:userId', async (req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
-    res.status(200).json(aUser);
+    
+    if(!aUser) {
+        res.json('Error: this userId is unknow').status(404);
+        console.log('Error: this userId is unknow');
+    } else {
+        res.status(200).json(aUser);
+    }
 });
 
+/**
+ * @swagger
+ * /user/create:
+ *  post:
+ *      tags: 
+ *          - User
+ *      description: Créer un utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user'
+ *      responses: 
+ *          201:
+ *              description: Retourne les informations d'un utilisateur unique
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: L'utilisateur existe déjà en base de données
+ */
 router.post('/create', async (req, res) => {
     let userBDD = await user.findOne({ where: { email: req.body.email } });
 
     if (userBDD) {
-        res.status(200).json('User already created');
+        res.status(409).json('User already created');
         console.log('User already created');
     } else {
         const newUser = user.build({
@@ -41,6 +118,29 @@ router.post('/create', async (req, res) => {
     }
 });
 
+
+/**
+ * @swagger
+ * /user/update/{userId}:
+ *  put:
+ *      tags: 
+ *          - User
+ *      description: Mettre à jour les informations d'un utilisateurs 
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user'
+ *      responses: 
+ *          200:
+ *              description: Les inforamtions sont bien enregisté
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.put('/update/:userId', async (req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
@@ -57,8 +157,8 @@ router.put('/update/:userId', async (req, res) => {
     if (req.body.telephone) {
         aUser.telephone = req.body.telephone;
     }
-    if (req.body.role) {
-        aUser.role_id = req.body.role;
+    if (req.body.role_id) {
+        aUser.role_id = req.body.role_id;
     }
 
     await aUser.save();
@@ -66,6 +166,23 @@ router.put('/update/:userId', async (req, res) => {
     res.json("User is updated").status(200);
 });
 
+/**
+ * @swagger
+ * /user/delete/{userId}:
+ *  delete:
+ *      tags: 
+ *          - User
+ *      description: Supprimer un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      responses:
+ *          200:
+ *              description: L'utilisateur est bien supprimé
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/delete/:userId', async (req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
@@ -83,6 +200,24 @@ router.delete('/delete/:userId', async (req, res) => {
 
 // ROUTE API WITH JOIN FOR FAV SPORT
 
+
+/**
+ * @swagger
+ * /user/favorite_sport/{userId}:
+ *  get:
+ *      tags: 
+ *          - User
+ *      description: Récupérer les sports favoris d'un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.get('/favorite_sport/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -102,6 +237,28 @@ router.get('/favorite_sport/:userId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /user/favorite_sport/{userId}:
+ *  post:
+ *      tags: 
+ *          - User
+ *      description: Ajouter un sport favori à un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user_fav_sport'
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.post('/favorite_sport/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -144,6 +301,28 @@ router.post('/favorite_sport/:userId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /user/favorite_sport/{userId}:
+ *  delete:
+ *      tags: 
+ *          - User
+ *      description: Supprimer un sport favori à un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user_fav_sport'
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/favorite_sport/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -185,6 +364,23 @@ router.delete('/favorite_sport/:userId', async (req, res) => {
 
 // ROUTE API WITH JOIN FOR FAV TEAMS
 
+/**
+ * @swagger
+ * /user/favorite_teams/{userId}:
+ *  get:
+ *      tags: 
+ *          - User
+ *      description: Récupérer les équipes favorites d'un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.get('/favorite_teams/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -204,6 +400,28 @@ router.get('/favorite_teams/:userId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /user/favorite_teams/{userId}:
+ *  post:
+ *      tags: 
+ *          - User
+ *      description: Ajouter une équipe favorite à un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user_fav_equipe'
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.post('/favorite_teams/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -243,6 +461,28 @@ router.post('/favorite_teams/:userId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /user/favorite_teams/{userId}:
+ *  delete:
+ *      tags: 
+ *          - User
+ *      description: Supprime une équipe favorite d'un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user_fav_equipe'
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/favorite_teams/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -284,6 +524,23 @@ router.delete('/favorite_teams/:userId', async (req, res) => {
 
 // ROUTE API WITH JOIN FOR EVENTS
 
+/**
+ * @swagger
+ * /user/events/{userId}:
+ *  get:
+ *      tags: 
+ *          - User
+ *      description: Récupère les évènements d'un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.get('/events/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -303,6 +560,28 @@ router.get('/events/:userId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /user/events/{userId}:
+ *  post:
+ *      tags: 
+ *          - User
+ *      description: Ajoute un évènement à un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user_event'
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.post('/events/:userId', async (req, res) => {
     let { userId } = req.params;
 
@@ -342,6 +621,28 @@ router.post('/events/:userId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /user/events/{userId}:
+ *  delete:
+ *      tags: 
+ *          - User
+ *      description: Supprime un évènement d'un utilisateur
+ *      parameters: 
+ *          - in: path
+ *            name: userId
+ *            description: id de l'utilisateur
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/user_event'
+ *      responses:
+ *          200:
+ *              description: Les informations sont retournées
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/events/:userId', async (req, res) => {
     let { userId } = req.params;
 
