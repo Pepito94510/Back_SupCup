@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 const { QueryTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
+const { createTokenFromData } = require('../utils/tokens');
 
 const user = require('../models/user');
 const sport = require('../models/sport');
@@ -69,8 +71,8 @@ router.get('/', async (req, res) => {
 router.get('/:userId', async (req, res) => {
     let { userId } = req.params;
     let aUser = await user.findByPk(userId);
-    
-    if(!aUser) {
+
+    if (!aUser) {
         res.json('Error: this userId is unknow').status(404);
         console.log('Error: this userId is unknow');
     } else {
@@ -105,19 +107,45 @@ router.post('/create', async (req, res) => {
         res.status(409).json('User already created');
         console.log('User already created');
     } else {
+        const salt = bcrypt.genSaltSync(10);
+        const hash = await bcrypt.hash(req.body.password, salt);
+
         const newUser = user.build({
             last_name: req.body.last_name,
             first_name: req.body.first_name,
             email: req.body.email,
             telephone: req.body.telephone,
+            password: hash,
             role_id: req.body.role
         });
         await newUser.save();
 
-        res.json("User created").status(201);
+        res.json('user created').status(201);
     }
 });
 
+router.post('/login', async (req, res) => {
+    let userBDD = await user.findOne({ where: { email: req.body.email } });
+
+    if (!userBDD) {
+        res.status(404).json('Error: Email is unknow in database');
+        console.log('Error login: wrong email');
+    } else {
+        isMatch = await bcrypt.compare(req.body.password, userBDD.password);
+        if (!isMatch) {
+            res.status(404).json('Error: Password is incorect');
+            console.log('Error login: wrong password for ' + req.body.email);
+        } else {
+            jsonData = {
+                id_user: userBDD.id,
+                role_id: userBDD.role_id
+            }
+            token = createTokenFromData(jsonData);
+
+            res.json(token).status(200);
+        }
+    }
+});
 
 /**
  * @swagger

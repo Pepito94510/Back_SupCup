@@ -20,6 +20,10 @@ user.init({
         type: DataTypes.STRING,
         allowNull: true
     },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     role_id: {
         type: DataTypes.NUMBER,
         allowNull: true
