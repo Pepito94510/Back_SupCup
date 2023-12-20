@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const sport = require('../models/sport');
+const { checkToken } = require('../utils/tokens');
 
 /**
  * @swagger
@@ -15,9 +16,23 @@ const sport = require('../models/sport');
  *                      type: string
  */
 
-router.get('/', async(req, res) => {
-    let sports = await sport.findAll();
-    res.status(200).json(sports);
+router.get('/', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if (tokenOk.role_id >= 3) {
+                let sports = await sport.findAll();
+                res.status(200).json(sports);
+            }
+        }
+    }
 });
 
 /**
@@ -37,10 +52,24 @@ router.get('/', async(req, res) => {
  *          404:
  *              description: L'id sport saisie n'est pas connu ne base de données
  */
-router.get('/:sportId', async(req, res) => {
-    let { sportId } = req.params;
-    let aSport = await sport.findByPk(sportId);
-    res.status(200).json(aSport);
+router.get('/:sportId', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if (tokenOk.role_id >= 1) {
+                let { sportId } = req.params;
+                let aSport = await sport.findByPk(sportId);
+                res.status(200).json(aSport);
+            }
+        }
+    }
 });
 
 /**
@@ -63,28 +92,41 @@ router.get('/:sportId', async(req, res) => {
  *          409:
  *              description: Le sport existe déjà en base de données
  */
-router.post('/create', async(req, res) => {
-
-    if (!req.body.name) {
-        res.json('Error: check your parameters. name is required').status(404);
-        console.log('Error: name is missing in parameters');
+router.post('/create', async (req, res) => {
+    if (req.headers.token) {
+        res.json('Error: You need a token').status(404);
     } else {
-        // transform string on lowercase
-        let new_sport = req.body.name.toString().toLowerCase();
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
 
-        // check if sport is already in BDD
-        let check_sport = await sport.findOne({ where: { name: new_sport } });
-
-        if(check_sport) {
-            res.status(200).json(req.body.name + ' already created');
-            console.log(req.body.name + ' already created');
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
         } else {
-            const newSport = sport.build({
-                name: new_sport,
-            });
-            await newSport.save();
+            if (tokenOk.role_id >= 3) {
+                if (!req.body.name) {
+                    res.json('Error: check your parameters. name is required').status(404);
+                    console.log('Error: name is missing in parameters');
+                } else {
+                    // transform string on lowercase
+                    let new_sport = req.body.name.toString().toLowerCase();
 
-            res.json("Sport : " + req.body.name +  " created");
+                    // check if sport is already in BDD
+                    let check_sport = await sport.findOne({ where: { name: new_sport } });
+
+                    if (check_sport) {
+                        res.status(200).json(req.body.name + ' already created');
+                        console.log(req.body.name + ' already created');
+                    } else {
+                        const newSport = sport.build({
+                            name: new_sport,
+                        });
+                        await newSport.save();
+
+                        res.json("Sport : " + req.body.name + " created");
+                    }
+                }
+            }
         }
     }
 });
@@ -111,33 +153,44 @@ router.post('/create', async(req, res) => {
  *          404:
  *              description: Erreurs provenant des paramètres
  */
-router.put('/update/:sportId', async(req, res) => {
+router.put('/update/:sportId', async (req, res) => {
 
-    // check all params
-    let { sportId } = req.params;
-
-    // check if name is not empty
-    if(!req.body.name) {
-        res.json('Error: no value');
-        console.log('Error: no value');
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
     } else {
-        let sport_update = req.body.name.toString().toLowerCase();
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
 
-        // check if value is ok with database
-        let aSport = await sport.findByPk(sportId);
-        let checkAllSports = await sport.findOne({ where: { name: sport_update } })
+        if (!tokenOk) {
+            if (tokenOk.role_id >= 3) {
+                // check all params
+                let { sportId } = req.params;
 
-        if(!aSport) {
-            console.log('sport not found');
-            res.json("Error: sport not found").status(404);
-        } else if (checkAllSports) {
-            res.json(sport_update + ' is already in database').status(200);
-            console.log(sport_update + ' is already in database');
-        } else {
-            aSport.name = sport_update;
-            await aSport.save();
-    
-            res.json('sport updated').status(200);
+                // check if name is not empty
+                if (!req.body.name) {
+                    res.json('Error: no value');
+                    console.log('Error: no value');
+                } else {
+                    let sport_update = req.body.name.toString().toLowerCase();
+
+                    // check if value is ok with database
+                    let aSport = await sport.findByPk(sportId);
+                    let checkAllSports = await sport.findOne({ where: { name: sport_update } })
+
+                    if (!aSport) {
+                        console.log('sport not found');
+                        res.json("Error: sport not found").status(404);
+                    } else if (checkAllSports) {
+                        res.json(sport_update + ' is already in database').status(200);
+                        console.log(sport_update + ' is already in database');
+                    } else {
+                        aSport.name = sport_update;
+                        await aSport.save();
+
+                        res.json('sport updated').status(200);
+                    }
+                }
+            }
         }
     }
 });
@@ -159,17 +212,31 @@ router.put('/update/:sportId', async(req, res) => {
  *          404:
  *              description: Erreurs provenant des paramètres
  */
-router.delete('/delete/:sportId', async(req, res) => {
-    let { sportId } = req.params;
-    let aSport = await sport.findByPk(sportId);
-
-    if (!aSport) {
-        res.json('Error: This sportId is unknow').status(404);
-        console.log('Error: This sportId is unknow');
+router.delete('/delete/:sportId', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
     } else {
-        await aSport.destroy();
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
 
-        res.json("Sport deleted").status(200);
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if (tokenOk.role_id >= 3) {
+                let { sportId } = req.params;
+                let aSport = await sport.findByPk(sportId);
+
+                if (!aSport) {
+                    res.json('Error: This sportId is unknow').status(404);
+                    console.log('Error: This sportId is unknow');
+                } else {
+                    await aSport.destroy();
+
+                    res.json("Sport deleted").status(200);
+                }
+            }
+        }
     }
 });
 
