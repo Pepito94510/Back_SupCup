@@ -70,9 +70,16 @@ router.get('/', async (req, res) => {
  *          - User
  *      description: Retourne les informations d'un utilisateur à partir de son Id
  *      parameters: 
- *          - in: path
- *            name: userId
+ *          - name: userId
+ *            in: path
  *            description: id de l'utilisateur
+ *            required: true
+ *          - name: token
+ *            in: header
+ *            description: 'token'
+ *            required: true
+ *            schema:
+ *             type: string
  *      responses: 
  *          200:
  *              description: Retourne les informations d'un utilisateur unique
@@ -83,7 +90,7 @@ router.get('/:userId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
     } else {
-        let { token } = req.headers.token;
+        let token = req.headers.token;
         const tokenOk = checkToken(token);
 
         if (!tokenOk) {
