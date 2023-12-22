@@ -5,6 +5,9 @@ const event = require('../models/event');
 const sport = require('../models/sport');
 const { checkToken } = require('../utils/tokens');
 
+const Sequelize = require('sequelize');
+const op = Sequelize.Op;
+
 /**
  * @swagger
  * 
