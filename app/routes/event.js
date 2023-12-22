@@ -4,6 +4,22 @@ var router = express.Router();
 const event = require('../models/event');
 const sport = require('../models/sport');
 
+/**
+ * @swagger
+ * 
+ *  components:
+ *      schema:
+ *          event:
+ *              type: object
+ *              properties: 
+ *                  id_sport:
+ *                      type: integer
+ *                  name:
+ *                      type: string
+ *                  description:
+ *                      type: string
+ */
+
 router.get('/', async (req, res) => {
     let events = await event.findAll();
     if(!events) {
@@ -12,6 +28,23 @@ router.get('/', async (req, res) => {
     res.status(200).json(events);
 });
 
+/**
+ * @swagger
+ * /event/{eventId}:
+ *  get:
+ *      tags: 
+ *          - Event
+ *      description: Retourne les informations d'un évènement en fonction de son id
+ *      parameters: 
+ *          - in: path
+ *            name: eventId
+ *            description: id de l'évènement
+ *      responses: 
+ *          200:
+ *              description: Retourne les informations d'un évènement
+ *          404:
+ *              description: L'id évènement saisie n'est pas connu ne base de données
+ */
 router.get('/:eventId', async (req, res) => {
     let { eventId } = req.params;
     let aEvent = await event.findByPk(eventId);
@@ -22,6 +55,30 @@ router.get('/:eventId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /event/create:
+ *  post:
+ *      tags: 
+ *          - Event
+ *      description: Créer un évènement
+ *      parameters: 
+ *          - in: path
+ *            name: eventId
+ *            description: id de l'évènement
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/event'
+ *      responses: 
+ *          201:
+ *              description: Créer un nouveau évènement
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: L'évènement existe déjà en base de données
+ */
 router.post('/create', async (req, res) => {
     if (!req.body.id_sport || !req.body.name) {
         res.json('Error: check your parameters. id_sport and name are required').status(404);
@@ -50,6 +107,28 @@ router.post('/create', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /event/update:
+ *  put:
+ *      tags: 
+ *          - Event
+ *      description: Modifie un évènement
+ *      parameters: 
+ *          - in: path
+ *            name: eventId
+ *            description: id de l'évènement
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/event'
+ *      responses: 
+ *          201:
+ *              description: Modifie un nouveau évènement
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.put('/update/:eventId', async (req, res) => {
     let { eventId } = req.params;
     let aEvent = await event.findByPk(eventId);
@@ -87,6 +166,23 @@ router.put('/update/:eventId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /event/update:
+ *  delete:
+ *      tags: 
+ *          - Event
+ *      description: Supprime un évènement
+ *      parameters: 
+ *          - in: path
+ *            name: eventId
+ *            description: id de l'évènement
+ *      responses: 
+ *          201:
+ *              description: Supprime un nouveau évènement
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/delete/:eventId', async (req, res) => {
     let { eventId } = req.params;
     let aEvent = await event.findByPk(eventId);

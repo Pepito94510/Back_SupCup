@@ -3,17 +3,66 @@ var router = express.Router();
 
 const sport = require('../models/sport');
 
+/**
+ * @swagger
+ * 
+ *  components:
+ *      schema:
+ *          sport:
+ *              type: object
+ *              properties: 
+ *                  name:
+ *                      type: string
+ */
+
 router.get('/', async(req, res) => {
     let sports = await sport.findAll();
     res.status(200).json(sports);
 });
 
+/**
+ * @swagger
+ * /sports/{sportId}:
+ *  get:
+ *      tags: 
+ *          - Sport
+ *      description: Retourne les informations d'un sport en fonction de son id
+ *      parameters: 
+ *          - in: path
+ *            name: sportId
+ *            description: id du sport
+ *      responses: 
+ *          200:
+ *              description: Retourne les informations d'un sport
+ *          404:
+ *              description: L'id sport saisie n'est pas connu ne base de données
+ */
 router.get('/:sportId', async(req, res) => {
     let { sportId } = req.params;
     let aSport = await sport.findByPk(sportId);
     res.status(200).json(aSport);
 });
 
+/**
+ * @swagger
+ * /sport/create:
+ *  post:
+ *      tags: 
+ *          - Sport
+ *      description: Créer un sport
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/sport'
+ *      responses: 
+ *          201:
+ *              description: Créer un nouveau sport
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: Le sport existe déjà en base de données
+ */
 router.post('/create', async(req, res) => {
 
     if (!req.body.name) {
@@ -40,6 +89,28 @@ router.post('/create', async(req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /sport/update:
+ *  put:
+ *      tags: 
+ *          - Sport
+ *      description: Modifie un sport
+ *      parameters: 
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *      requestBody: 
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/sport'
+ *      responses: 
+ *          201:
+ *              description: Modifie un sport
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.put('/update/:sportId', async(req, res) => {
 
     // check all params
@@ -71,6 +142,23 @@ router.put('/update/:sportId', async(req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /sport/delete:
+ *  delete:
+ *      tags: 
+ *          - Sport
+ *      description: Supprime un sport
+ *      parameters: 
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *      responses: 
+ *          201:
+ *              description: Supprime un sport
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 router.delete('/delete/:sportId', async(req, res) => {
     let { sportId } = req.params;
     let aSport = await sport.findByPk(sportId);

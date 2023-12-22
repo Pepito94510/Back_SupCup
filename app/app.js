@@ -25,6 +25,28 @@ app.use('/equipe', routeEquipe);
 app.use('/event', routeEvent);
 app.use('/bar', routeBar);
 
+const swaggerJsDoc = require('swagger-jsdoc');
+const swagerUi = require('swagger-ui-express');
+
+const options = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Node JS API project for supcup backend',
+            version: '1.0.0'
+        }, 
+        servers: [
+            {
+                url:  'http://localhost:5001/'
+            }
+        ]
+    }, 
+    apis: ['./routes/*.js'] 
+}
+
+const swaggerSpec = swaggerJsDoc(options);
+app.use('/api-docs', swagerUi.serve, swagerUi.setup(swaggerSpec))
+
 
 // Global routes
 app.get('/', (req, res) => {
