@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const role = require('../models/role');
+const { checkToken } = require('../utils/tokens');
 
 /**
  * @swagger
@@ -15,9 +16,23 @@ const role = require('../models/role');
  *                      type: string
  */
 
-router.get('/', async(req, res) => {
-    let roles = await role.findAll();
-    res.status(200).json(roles);
+router.get('/', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if (tokenOk.role_id >= 3) {
+                let roles = await role.findAll();
+                res.status(200).json(roles);
+            }
+        }
+    }
 });
 
 /**
@@ -37,15 +52,29 @@ router.get('/', async(req, res) => {
  *          404:
  *              description: L'id role saisie n'est pas connu ne base de données
  */
-router.get('/:roleId', async(req, res) => {
-    let { roleId } = req.params;
-    let aRole = await role.findByPk(roleId);
-    res.status(200).json(aRole);
+router.get('/:roleId', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if (tokenOk.role_id >= 3) {
+                let { roleId } = req.params;
+                let aRole = await role.findByPk(roleId);
+                res.status(200).json(aRole);
+            }
+        }
+    }
 });
 
 /**
  * @swagger
- * /role/create/{roleId}:
+ * /role/create:
  *  post:
  *      tags: 
  *          - Role
@@ -55,26 +84,34 @@ router.get('/:roleId', async(req, res) => {
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/role'
- *      parameters: 
- *          - in: path
- *            name: roleId
- *            description: id du role
  *      responses: 
  *          200:
  *              description: Retourne les informations d'un role
  *          404:
  *              description: L'id role saisie n'est pas connu ne base de données
  */
-router.post('/create', async(req, res) => {
-    console.log(req.body);
+router.post('/create', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
 
-    const newRole = role.build({
-        Name: req.body.name,
-    });
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if (tokenOk.role_id >= 3) {
+                const newRole = role.build({
+                    Name: req.body.name,
+                });
 
-    await newRole.save();
+                await newRole.save();
 
-    res.send("Role_created");
+                res.send("Role_created");
+            }
+        }
+    }
 });
 
 /**
@@ -99,17 +136,31 @@ router.post('/create', async(req, res) => {
  *          404:
  *              description: L'id role saisie n'est pas connu ne base de données
  */
-router.put('/update/:roleId', async(req, res) => {
-    let { roleId } = req.params;
-    let aRole = await role.findByPk(roleId);
+router.put('/update/:roleId', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
 
-    if (req.body.name) {
-        aRole.Name = req.body.name;
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if (tokenOk.role_id >= 3) {
+                let { roleId } = req.params;
+                let aRole = await role.findByPk(roleId);
+
+                if (req.body.name) {
+                    aRole.Name = req.body.name;
+                }
+
+                await aRole.save();
+
+                res.send("Role_updated");
+            }
+        }
     }
-
-    await aRole.save();
-
-    res.send("Role_updated");
 });
 
 /**
@@ -129,13 +180,27 @@ router.put('/update/:roleId', async(req, res) => {
  *          404:
  *              description: L'id role saisie n'est pas connu ne base de données
  */
-router.delete('/delete/:roleId', async(req, res) => {
-    let { roleId } = req.params;
-    let aRole = await role.findByPk(roleId);
+router.delete('/delete/:roleId', async (req, res) => {
+    if(!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
 
-    await aRole.destroy();
-
-    res.send("Role_deleted");
+        if(!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            if(tokenOk.role_id >= 3) {
+                let { roleId } = req.params;
+                let aRole = await role.findByPk(roleId);
+            
+                await aRole.destroy();
+            
+                res.send("Role_deleted");
+            }
+        }
+    }
 });
 
 module.exports = router;
