@@ -52,7 +52,7 @@ router.get('/', async (req, res) => {
  *          404:
  *              description: L'id role saisie n'est pas connu ne base de données
  */
-router.get('/:roleId', async (req, res) => {
+router.get('/find-one/:roleId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
     } else {

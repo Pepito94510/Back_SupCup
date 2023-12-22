@@ -15,6 +15,10 @@ event.init({
     description: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    date_event: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 
 }, {

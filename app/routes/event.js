@@ -60,7 +60,7 @@ router.get('/', async (req, res) => {
  *          404:
  *              description: L'id évènement saisie n'est pas connu ne base de données
  */
-router.get('/:eventId', async (req, res) => {
+router.get('/find-one/:eventId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
     } else {
@@ -137,7 +137,8 @@ router.post('/create', async (req, res) => {
                         const newEvent = event.build({
                             id_sport: sport_requested,
                             name: event_name_requested,
-                            description: req.body.description
+                            description: req.body.description,
+                            date_event: req.body.date
                         });
                         await newEvent.save();
 
@@ -189,7 +190,7 @@ router.put('/update/:eventId', async (req, res) => {
                 let errorMessage = "";
 
                 //check parameters and body
-                if (!req.body.id_sport && !req.body.name && !req.body.description) {
+                if (!req.body.id_sport && !req.body.name && !req.body.description && !req.body.date) {
                     res.json('Error: check your parameters. Either id_sport or name or description is required').status(404);
                     console.log('Error: id_sport or name or logo are missing in parameters');
                 } else if (!aEvent) {
@@ -214,6 +215,9 @@ router.put('/update/:eventId', async (req, res) => {
                     }
                     if (req.body.description) {
                         aEvent.description = req.body.description;
+                    }
+                    if (req.body.date) {
+                        aEvent.date_event = req.body.date;
                     }
                     await aEvent.save();
                     res.json("Event updated" + errorMessage).status(200);
@@ -265,6 +269,14 @@ router.delete('/delete/:eventId', async (req, res) => {
             }
         }
     }
+});
+
+router.get('/next-events', async (req, res) => {
+    let events = await event.findAll({where: {date_event: {[op.gte]: new Date().toISOString().split('T')[0]}}, limit: 8, order: [['date_event', 'ASC']]});
+    if(!events) {
+        res.status(200).json("We don't have any event in database");
+    }
+    res.status(200).json(events);
 });
 
 module.exports = router;
