@@ -3,7 +3,7 @@ var router = express.Router();
 const { QueryTypes } = require('sequelize');
 
 const bar = require('../models/bar');
-
+const user = require('../models/user');
 const sequelize = require('../utils/database');
 const event = require('../models/event');
 const { checkToken } = require('../utils/tokens');
@@ -120,7 +120,7 @@ router.post('/create', async (req, res) => {
             res.json('Error: The token is incorect').status(404);
             console.log('Error: Wrong token');
         } else {
-            if (tokenOk.role_id >= 2) {
+            if (tokenOk.role_id >= 1) {
                 if (!req.body.name) {
                     res.json('Error: name is required')
                 }
@@ -155,8 +155,13 @@ router.post('/create', async (req, res) => {
                         postcode: req.body.postcode,
                         city: req.body.city,
                         mail: req.body.mail,
+                        id_user: tokenOk.id_user
                     });
                     await newBar.save();
+
+                    const updateUser = await user.findByPk(tokenOk.id_user);
+                    updateUser.role_id = 2;
+                    updateUser.save();
 
                     res.json("Bar is created").status(201);
                 }
