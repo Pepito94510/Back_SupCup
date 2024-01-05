@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
  *          404:
  *              description: L'id équipe saisie n'est pas connu ne base de données
  */
-router.get('/:equipeId', async (req, res) => {
+router.get('/find-one/:equipeId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
     } else {
