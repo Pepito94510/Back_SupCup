@@ -16,6 +16,12 @@ docker-compose up -d
 ```
 http://localhost:5001
 ```
+
+### API DOCS
+```
+http://localhost:5001/api-docs/
+```
+
 ### PhpMyAdmin
 ```
 http://localhost:8081
