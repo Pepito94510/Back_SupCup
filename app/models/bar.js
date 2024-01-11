@@ -23,6 +23,10 @@ bar.init({
     mail: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    id_user: {
+        type: DataTypes.NUMBER,
+        allowNull: true
     }
 }, {
     sequelize,
