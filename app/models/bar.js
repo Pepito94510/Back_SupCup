@@ -27,6 +27,10 @@ bar.init({
     id_user: {
         type: DataTypes.NUMBER,
         allowNull: true
+    },
+    description: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     sequelize,

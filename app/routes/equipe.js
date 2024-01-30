@@ -22,22 +22,8 @@ const { checkToken } = require('../utils/tokens');
  */
 
 router.get('/', async (req, res) => {
-    if (!req.headers.token) {
-        res.json('Error: You need a token').status(404);
-    } else {
-        let token = req.headers.token;
-        const tokenOk = checkToken(token);
-
-        if (!tokenOk) {
-            res.json('Error: The token is incorect').status(404);
-            console.log('Error: Wrong token');
-        } else {
-            if (tokenOk.role_id >= 1) {
-                let equipes = await equipe.findAll();
-                res.status(200).json(equipes);
-            }
-        }
-    }
+    let equipes = await equipe.findAll();
+    res.status(200).json(equipes);
 });
 
 /**

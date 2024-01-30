@@ -17,22 +17,8 @@ const { checkToken } = require('../utils/tokens');
  */
 
 router.get('/', async (req, res) => {
-    if (!req.headers.token) {
-        res.json('Error: You need a token').status(404);
-    } else {
-        let token = req.headers.token;
-        const tokenOk = checkToken(token);
-
-        if (!tokenOk) {
-            res.json('Error: The token is incorect').status(404);
-            console.log('Error: Wrong token');
-        } else {
-            if (tokenOk.role_id >= 3) {
-                let sports = await sport.findAll();
-                res.status(200).json(sports);
-            }
-        }
-    }
+    let sports = await sport.findAll();
+    res.status(200).json(sports);
 });
 
 /**
@@ -238,6 +224,14 @@ router.delete('/delete/:sportId', async (req, res) => {
             }
         }
     }
+});
+
+router.get('/top-sports', async (req, res) => {
+    let sports = await sport.findAll({limit: 8, order: [['id', 'DESC']]});
+    if(!sports) {
+        res.status(200).json("We don't have any sport in database");
+    }
+    res.status(200).json(sports);
 });
 
 module.exports = router;
