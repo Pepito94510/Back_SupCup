@@ -8,6 +8,7 @@ const user = require('../models/user');
 const sport = require('../models/sport');
 const equipe = require('../models/equipe');
 const event = require('../models/event');
+const favEquipe = require('../models/fav_equipe');
 
 const sequelize = require('../utils/database');
 
@@ -48,6 +49,8 @@ const sequelize = require('../utils/database');
 
 router.get('/', async (req, res) => {
     if (!req.headers.token) {
+        res.json('Error: Token is needed').status(404);
+    } else {
         const tokenOk = checkToken(req.headers.token);
         if (tokenOk.role_id >= 3) {
             let users = await user.findAll();
@@ -56,8 +59,6 @@ router.get('/', async (req, res) => {
             res.json("Error: You don't have access").status(403);
             console.log('Error: Token nedd elevation');
         }
-    } else {
-        res.json('Error: Token is needed').status(404);
     }
 
 });
@@ -148,7 +149,7 @@ router.post('/create', async (req, res) => {
             email: req.body.email,
             telephone: req.body.telephone,
             password: hash,
-            role_id: req.body.role
+            role_id: 1
         });
         await newUser.save();
 
@@ -891,6 +892,116 @@ router.delete('/events/:userId', async (req, res) => {
                     }
                 }
             }
+        }
+    }
+});
+
+router.get('/profil', async (req, res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let aUser = await user.findByPk(tokenOk.id_user);
+
+            if (!aUser) {
+                res.json('Error: this userId is unknow').status(404);
+                console.log('Error: this userId is unknow');
+            } else {
+                res.status(200).json(aUser);
+            }
+        }
+    }
+});
+
+router.get('/fav-equipes', async (req, res) => {
+    
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let favEquipes = await sequelize.query(
+                "SELECT * FROM `EQUIPE` e LEFT JOIN `FAV_EQUIPE` fe ON fe.id_equipe = e.id WHERE fe.id_user = :idUser", 
+                {
+                    replacements: { idUser: tokenOk.id_user },
+                    type: QueryTypes.SELECT 
+                }
+            );
+
+            if(!favEquipes) {
+                res.status(200).json("You do not have any favorite team");
+            }
+
+            res.status(200).json(favEquipes);
+        }
+    }
+});
+
+router.get('/fav-sports', async (req, res) => {
+    
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let favSports = await sequelize.query(
+                "SELECT * FROM `SPORT` s LEFT JOIN `FAV_SPORT` fs ON fs.id_sport = s.id WHERE fs.id_user = :idUser", 
+                {
+                    replacements: { idUser: tokenOk.id_user },
+                    type: QueryTypes.SELECT 
+                }
+            );
+
+            if(!favSports) {
+                res.status(200).json("You do not have any favorite sport");
+            }
+
+            res.status(200).json(favSports);
+        }
+    }
+});
+
+router.get('/fav-bars', async (req, res) => {
+    
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let favSports = await sequelize.query(
+                "SELECT * FROM `BAR` b LEFT JOIN `FAV_BAR` fb ON fb.id_bar = b.id WHERE fb.id_user = :idUser", 
+                {
+                    replacements: { idUser: tokenOk.id_user },
+                    type: QueryTypes.SELECT 
+                }
+            );
+
+            if(!favSports) {
+                res.status(200).json("You do not have any favorite bar");
+            }
+
+            res.status(200).json(favSports);
         }
     }
 });

@@ -70,23 +70,9 @@ router.get('/', async (req, res) => {
  *              description: L'id bar saisie n'est pas connu ne base de données
  */
 router.get('/find-one/:barId', async (req, res) => {
-    if (!req.headers.token) {
-        res.json('Error: You need a token').status(404);
-    } else {
-        let token = req.headers.token;
-        const tokenOk = checkToken(token);
-
-        if (!tokenOk) {
-            res.json('Error: The token is incorect').status(404);
-            console.log('Error: Wrong token');
-        } else {
-            if (tokenOk.role_id >= 1) {
-                let { barId } = req.params;
-                let aBar = await bar.findByPk(barId);
-                res.status(200).json(aBar);
-            }
-        }
-    }
+    let { barId } = req.params;
+    let aBar = await bar.findByPk(barId);
+    res.status(200).json(aBar);
 });
 
 /**
@@ -136,6 +122,9 @@ router.post('/create', async (req, res) => {
                 if (!req.body.mail) {
                     res.json('Error: mail is required')
                 }
+                if (!req.body.description) {
+                    res.json('Error: description is required')
+                }
                 let barBDD = await bar.findOne({
                     where: {
                         name: req.body.name,
@@ -155,6 +144,7 @@ router.post('/create', async (req, res) => {
                         postcode: req.body.postcode,
                         city: req.body.city,
                         mail: req.body.mail,
+                        description: req.body.description,
                         id_user: tokenOk.id_user
                     });
                     await newBar.save();
@@ -221,6 +211,9 @@ router.put('/update/:barId', async (req, res) => {
                 }
                 if (req.body.mail) {
                     aBar.mail = req.body.mail;
+                }
+                if (req.body.description) {
+                    aBar.description = req.body.description;
                 }
 
                 await aBar.save();
@@ -476,6 +469,14 @@ router.delete('/events/:barId', async (req, res) => {
             }
         }
     }
+});
+
+router.get('/top-bars', async (req, res) => {
+    let bars = await bar.findAll({limit: 8, order: [['id', 'DESC']]});
+    if(!bars) {
+        res.status(200).json("We don't have any bars in database");
+    }
+    res.status(200).json(bars);
 });
 
 module.exports = router;

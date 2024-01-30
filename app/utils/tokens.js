@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 function createTokenFromData(jsonData, options = {}) {
     try {
         const secretKey = process.env.SECRETKEY;
-        const token = jwt.sign(jsonData, secretKey, options)
+        const token = jwt.sign(jsonData, secretKey, options);
         return token;
     } catch (error) {
         console.lof('Error: ' + error);
@@ -18,4 +18,4 @@ function checkToken(token) {
         return decodeToken;
 }
 
-module.exports = { createTokenFromData, checkToken }
+module.exports = { createTokenFromData, checkToken };
