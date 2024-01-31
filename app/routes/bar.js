@@ -465,6 +465,24 @@ router.get('/top-bars', async (req, res) => {
     res.status(200).json(bars);
 });
 
+router.get('/details/:barId', async (req, res) => {
+    let { barId } = req.params;
+
+    let aBar = await bar.findByPk(barId);
+    if (!aBar) {
+        res.json("Error: This barId is unknow in database").status(404);
+        console.log("Error: This barId is unknow in database");
+    } else {
+        const events_from_bar = await sequelize.query(
+            "SELECT EVENT.id as eventId, EVENT.name as eventName, EVENT.description as eventDescription, EVENT.date_event as eventDate, SPORT.name as sportName FROM EVENT LEFT JOIN BAR_EVENT ON EVENT.id = BAR_EVENT.id_event LEFT JOIN BAR ON BAR_EVENT.id_bar = BAR.id LEFT JOIN SPORT ON SPORT.id = EVENT.id_sport WHERE BAR.id = :id_bar",
+            {
+                replacements: { id_bar: barId },
+                type: QueryTypes.SELECT
+            }
+        );
+        res.status(200).json({"bar": aBar, "events": events_from_bar});
+    }
+});
 
 
 module.exports = router;
