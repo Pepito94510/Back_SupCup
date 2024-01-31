@@ -289,35 +289,21 @@ router.delete('/delete/:barId', async (req, res) => {
  *              description: Erreurs provenant des paramètres
  */
 router.get('/events/:barId', async (req, res) => {
-    if (!req.headers.token) {
-        res.json('Error: You need a token').status(404);
+    let { barId } = req.params;
+
+    let aBar = await bar.findByPk(barId);
+    if (!aBar) {
+        res.json("Error: This barId is unknow in database").status(404);
+        console.log("Error: This barId is unknow in database");
     } else {
-        let token = req.headers.token;
-        const tokenOk = checkToken(token);
-
-        if (!tokenOk) {
-            res.json('Error: The token is incorect').status(404);
-            console.log('Error: Wrong token');
-        } else {
-            if (tokenOk.role_id >= 1) {
-                let { barId } = req.params;
-
-                let aBar = await bar.findByPk(barId);
-                if (!aBar) {
-                    res.json("Error: This barId is unknow in database").status(404);
-                    console.log("Error: This barId is unknow in database");
-                } else {
-                    const events_from_bar = await sequelize.query(
-                        "SELECT EVENT.id, EVENT.name, EVENT.description FROM EVENT LEFT JOIN BAR_EVENT ON EVENT.id = BAR_EVENT.id_event LEFT JOIN BAR ON BAR_EVENT.id_bar = BAR.id WHERE BAR.id = :id_bar",
-                        {
-                            replacements: { id_bar: barId },
-                            type: QueryTypes.SELECT
-                        }
-                    );
-                    res.status(200).json(events_from_bar);
-                }
+        const events_from_bar = await sequelize.query(
+            "SELECT EVENT.id as eventId, EVENT.name as eventName, EVENT.description as eventDescription, EVENT.date_event as eventDate, SPORT.name as sportName FROM EVENT LEFT JOIN BAR_EVENT ON EVENT.id = BAR_EVENT.id_event LEFT JOIN BAR ON BAR_EVENT.id_bar = BAR.id LEFT JOIN SPORT ON SPORT.id = EVENT.id_sport WHERE BAR.id = :id_bar",
+            {
+                replacements: { id_bar: barId },
+                type: QueryTypes.SELECT
             }
-        }
+        );
+        res.status(200).json(events_from_bar);
     }
 });
 
@@ -478,5 +464,7 @@ router.get('/top-bars', async (req, res) => {
     }
     res.status(200).json(bars);
 });
+
+
 
 module.exports = router;
