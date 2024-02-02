@@ -1,11 +1,13 @@
 var express = require('express');
 var router = express.Router();
+const { QueryTypes } = require('sequelize');
 
 const event = require('../models/event');
 const sport = require('../models/sport');
 const { checkToken } = require('../utils/tokens');
 
 const Sequelize = require('sequelize');
+const sequelize = require('../utils/database');
 const op = Sequelize.Op;
 
 /**
@@ -280,6 +282,26 @@ router.get('/next-events', async (req, res) => {
         res.status(200).json("We don't have any event in database");
     }
     res.status(200).json(events);
+});
+
+router.get('/details/:eventId', async (req, res) => {
+    let { eventId } = req.params;
+    console.log(eventId);
+
+    let aEvent = await event.findByPk(eventId);
+    if(!aEvent) {
+        res.json("Error: This eventId is unknow in database").status(404);
+        console.log("Error: This eventId is unknow in database");
+    } else {
+        const bars_from_event = await sequelize.query(
+            "SELECT BAR.id, BAR.name, BAR.address, BAR.postcode, BAR.city, BAR.mail, BAR.description FROM BAR LEFT JOIN BAR_EVENT ON BAR.id = BAR_EVENT.id_bar LEFT JOIN EVENT ON EVENT.id = BAR_EVENT.id_event WHERE EVENT.id = :id_event;",
+            {
+                replacements: { id_event: eventId },
+                type: QueryTypes.SELECT
+            }
+        );
+        res.status(200).json({"event": aEvent, "bars": bars_from_event});
+    }
 });
 
 module.exports = router;
