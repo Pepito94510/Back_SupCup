@@ -250,20 +250,20 @@ router.put('/update/:eventId', async (req, res) => {
  *              description: Erreurs provenant des paramètres
  */
 router.delete('/delete/:eventId', async (req, res) => {
-    if(!req.headers.token) {
+    if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
     } else {
         let token = req.headers.token;
         const tokenOk = checkToken(token);
 
-        if(!tokenOk) {
+        if (!tokenOk) {
             res.json('Error: The token is incorect').status(404);
             console.log('Error: Wrong token');
         } else {
-            if(tokenOk.role_id >= 2) {
+            if (tokenOk.role_id >= 2) {
                 let { eventId } = req.params;
                 let aEvent = await event.findByPk(eventId);
-            
+
                 if (!aEvent) {
                     res.json('Error: This eventId is unknow').status(404);
                     console.log('Error: This eventId is unknow');
@@ -277,8 +277,8 @@ router.delete('/delete/:eventId', async (req, res) => {
 });
 
 router.get('/next-events', async (req, res) => {
-    let events = await event.findAll({where: {date_event: {[op.gte]: new Date().toISOString().split('T')[0]}}, limit: 8, order: [['date_event', 'ASC']]});
-    if(!events) {
+    let events = await event.findAll({ where: { date_event: { [op.gte]: new Date().toISOString().split('T')[0] } }, limit: 8, order: [['date_event', 'ASC']] });
+    if (!events) {
         res.status(200).json("We don't have any event in database");
     }
     res.status(200).json(events);
@@ -289,7 +289,7 @@ router.get('/details/:eventId', async (req, res) => {
     console.log(eventId);
 
     let aEvent = await event.findByPk(eventId);
-    if(!aEvent) {
+    if (!aEvent) {
         res.json("Error: This eventId is unknow in database").status(404);
         console.log("Error: This eventId is unknow in database");
     } else {
@@ -300,8 +300,31 @@ router.get('/details/:eventId', async (req, res) => {
                 type: QueryTypes.SELECT
             }
         );
-        res.status(200).json({"event": aEvent, "bars": bars_from_event});
+        res.status(200).json({ "event": aEvent, "bars": bars_from_event });
     }
 });
+
+router.get('/events-sport/:idSport', async (req, res) => {
+    let { idSport } = req.params;
+
+    let aSport = await sport.findByPk(idSport);
+    if (!aSport) {
+        res.json("Error: This sportId is unknow in database").status(404);
+        console.log("Error: This sportId is unknow in database");
+    } else {
+        const events_from_sports = await sequelize.query(
+            "SELECT EVENT.name, EVENT.id, EVENT.description, EVENT.date_event FROM SPORT LEFT JOIN EVENT ON EVENT.id_sport = SPORT.id WHERE SPORT.id = :id_sport;",
+            {
+                replacements: { id_sport: idSport },
+                type: QueryTypes.SELECT
+            }
+        );
+        res.status(200).json({
+            "sport": aSport,
+            "events": events_from_sports
+        });
+    }
+
+})
 
 module.exports = router;
