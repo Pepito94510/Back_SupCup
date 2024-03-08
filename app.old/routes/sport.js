@@ -6,12 +6,12 @@ const { checkToken } = require('../utils/tokens');
 
 /**
  * @swagger
- * 
+ *
  *  components:
  *      schema:
  *          sport:
  *              type: object
- *              properties: 
+ *              properties:
  *                  name:
  *                      type: string
  */
@@ -25,14 +25,14 @@ router.get('/', async (req, res) => {
  * @swagger
  * /sports/{sportId}:
  *  get:
- *      tags: 
+ *      tags:
  *          - Sport
  *      description: Retourne les informations d'un sport en fonction de son id
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: sportId
  *            description: id du sport
- *      responses: 
+ *      responses:
  *          200:
  *              description: Retourne les informations d'un sport
  *          404:
@@ -62,15 +62,15 @@ router.get('/find-one/:sportId', async (req, res) => {
  * @swagger
  * /sport/create:
  *  post:
- *      tags: 
+ *      tags:
  *          - Sport
  *      description: Créer un sport
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/sport'
- *      responses: 
+ *      responses:
  *          201:
  *              description: Créer un nouveau sport
  *          404:
@@ -106,6 +106,7 @@ router.post('/create', async (req, res) => {
                     } else {
                         const newSport = sport.build({
                             name: new_sport,
+                            image: req.body.image
                         });
                         await newSport.save();
 
@@ -121,19 +122,19 @@ router.post('/create', async (req, res) => {
  * @swagger
  * /sport/update:
  *  put:
- *      tags: 
+ *      tags:
  *          - Sport
  *      description: Modifie un sport
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: equipeId
  *            description: id de l'équipe
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/sport'
- *      responses: 
+ *      responses:
  *          201:
  *              description: Modifie un sport
  *          404:
@@ -153,24 +154,31 @@ router.put('/update/:sportId', async (req, res) => {
                 let { sportId } = req.params;
 
                 // check if name is not empty
-                if (!req.body.name) {
+                if (!req.body.name && !req.body.image) {
                     res.json('Error: no value');
                     console.log('Error: no value');
                 } else {
-                    let sport_update = req.body.name.toString().toLowerCase();
-
                     // check if value is ok with database
                     let aSport = await sport.findByPk(sportId);
-                    let checkAllSports = await sport.findOne({ where: { name: sport_update } })
 
                     if (!aSport) {
                         console.log('sport not found');
                         res.json("Error: sport not found").status(404);
-                    } else if (checkAllSports) {
-                        res.json(sport_update + ' is already in database').status(200);
-                        console.log(sport_update + ' is already in database');
                     } else {
-                        aSport.name = sport_update;
+                        if (req.body.image) {
+                            aSport.image = req.body.image;
+                        }
+
+                        if (req.body.name) {
+                            let sport_update = req.body.name.toString().toLowerCase();
+                            let checkAllSports = await sport.findOne({ where: { name: sport_update } });
+
+                            if (checkAllSports) {
+                                console.log(sport_update + ' is already in database');
+                            } else {
+                                aSport.name = sport_update;
+                            }
+                        }
                         await aSport.save();
 
                         res.json('sport updated').status(200);
@@ -185,14 +193,14 @@ router.put('/update/:sportId', async (req, res) => {
  * @swagger
  * /sport/delete:
  *  delete:
- *      tags: 
+ *      tags:
  *          - Sport
  *      description: Supprime un sport
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: equipeId
  *            description: id de l'équipe
- *      responses: 
+ *      responses:
  *          201:
  *              description: Supprime un sport
  *          404:
