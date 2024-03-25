@@ -11,7 +11,7 @@ sportRouter.get('/', async (req, res) => {
         let allSports = await sportService.getSports();
         res.json(allSports).status(200);
     }
-}); 
+});
 
 sportRouter.get('/find-one/:sportId', async (req,res) => {
     if(!req.headers.token) {
@@ -39,7 +39,7 @@ sportRouter.post('/create', async (req,res) => {
             if(!req.body.sportName) {
                 res.json('Error: missing parameters').status(404);
             } else {
-                let newSport = await sportService.createSport(req.body.sportName);
+                let newSport = await sportService.createSport(req.body.sportName, req.body.sportImage);
                 if(!newSport) {
                     res.json('Error: An error occured during the save').json(500);
                 } else {
@@ -56,13 +56,13 @@ sportRouter.put('/update/:sportId', async (req,res) => {
     } else {
         const tokenOk = checkToken(req.headers.token);
         if (!tokenOk) {
-            res.json('Error: The token is incorect').status(404); 
+            res.json('Error: The token is incorect').status(404);
         } else {
             //ajouter check TOKEN
             if(!req.body.sportName) {
                 res.json('Error: the sport name is required').status(404);
             } else {
-                await sportService.updateSport(req.params.sportId, req.body.sportName);
+                await sportService.updateSport(req.params.sportId, req.body.sportName, req.body.sportImage);
                 res.json('Sport updated').status(200);
             }
         }

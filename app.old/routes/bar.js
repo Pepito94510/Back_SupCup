@@ -10,12 +10,12 @@ const { checkToken } = require('../utils/tokens');
 
 /**
  * @swagger
- * 
+ *
  *  components:
  *      schema:
  *          bar:
  *              type: object
- *              properties: 
+ *              properties:
  *                  name:
  *                      type: string
  *                  address:
@@ -29,7 +29,7 @@ const { checkToken } = require('../utils/tokens');
  *          bar_event:
  *              type: object
  *              properties:
- *                  id_event:   
+ *                  id_event:
  *                      type: integer
  */
 
@@ -56,14 +56,14 @@ router.get('/', async (req, res) => {
  * @swagger
  * /bar/{barId}:
  *  get:
- *      tags: 
+ *      tags:
  *          - Bar
  *      description: Retourne les informations d'un bar en fonction de son id
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: barId
  *            description: id du bar
- *      responses: 
+ *      responses:
  *          200:
  *              description: Retourne les informations d'un bar
  *          404:
@@ -79,15 +79,15 @@ router.get('/find-one/:barId', async (req, res) => {
  * @swagger
  * /bar/create:
  *  post:
- *      tags: 
+ *      tags:
  *          - Bar
  *      description: Créer un bar
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/bar'
- *      responses: 
+ *      responses:
  *          201:
  *              description: Créer un nouveau bar
  *          404:
@@ -145,6 +145,7 @@ router.post('/create', async (req, res) => {
                         city: req.body.city,
                         mail: req.body.mail,
                         description: req.body.description,
+                        image: req.body.image,
                         id_user: tokenOk.id_user
                     });
                     await newBar.save();
@@ -164,19 +165,19 @@ router.post('/create', async (req, res) => {
  * @swagger
  * /bar/update/{barId}:
  *  put:
- *      tags: 
+ *      tags:
  *          - Bar
  *      description: Modifie un bar
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: barId
  *            description: id du bar
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/bar'
- *      responses: 
+ *      responses:
  *          201:
  *              description: Modifie un bar
  *          404:
@@ -215,6 +216,9 @@ router.put('/update/:barId', async (req, res) => {
                 if (req.body.description) {
                     aBar.description = req.body.description;
                 }
+                if (req.body.image) {
+                    aBar.image = req.body.image;
+                }
 
                 await aBar.save();
 
@@ -228,14 +232,14 @@ router.put('/update/:barId', async (req, res) => {
  * @swagger
  * /bar/delete/{barId}:
  *  delete:
- *      tags: 
+ *      tags:
  *          - Bar
  *      description: Modifie un bar
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: barId
  *            description: id du bar
- *      responses: 
+ *      responses:
  *          200:
  *              description: Supprime un bar
  *          404:
@@ -275,14 +279,14 @@ router.delete('/delete/:barId', async (req, res) => {
  * @swagger
  * /bar/events/{barId}:
  *  get:
- *      tags: 
+ *      tags:
  *          - Bar
  *      description: Récupère les évènements liés à un bar
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: barId
  *            description: id du bar
- *      responses: 
+ *      responses:
  *          200:
  *              description: Récupère les évènements liés à un bar
  *          404:
@@ -311,19 +315,19 @@ router.get('/events/:barId', async (req, res) => {
  * @swagger
  * /bar/events/{barId}:
  *  post:
- *      tags: 
+ *      tags:
  *          - Bar
  *      description: Ajoute un évènement à un bar
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: barId
  *            description: id du bar
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/bar_event'
- *      responses: 
+ *      responses:
  *          201:
  *              description: Ajoute un évènement à un bar
  *          404:
@@ -386,19 +390,19 @@ router.post('/events/:barId', async (req, res) => {
  * @swagger
  * /bar/events/{barId}:
  *  delete:
- *      tags: 
+ *      tags:
  *          - Bar
  *      description: Supprime un évènement à un bar
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: barId
  *            description: id du bar
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/bar_event'
- *      responses: 
+ *      responses:
  *          200:
  *              description: Supprime un évènement à un bar
  *          404:

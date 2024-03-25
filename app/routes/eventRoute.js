@@ -44,7 +44,7 @@ eventRouter.post('/create', async (req, res) => {
                 if (!checkSport) {
                     res.json('Error: This sport id is unknow in database');
                 } else {
-                    let newEvent = await eventService.createEvent(req.body.sportId, req.body.eventName, req.body.eventDescription, req.body.eventDate);
+                    let newEvent = await eventService.createEvent(req.body.sportId, req.body.eventName, req.body.eventDescription, req.body.eventDate, req.body.eventImage);
                     if (!newEvent) {
                         res.json('Error: An error occured durint the save').status(500);
                     } else {
@@ -78,7 +78,7 @@ eventRouter.put('/update/:eventId', async (req, res) => {
                     if (!checkSportId) {
                         res.json('Error: This sportId is unknow in database').status(404);
                     } else {
-                        await eventService.updateEvent(checkEventObject, req.body.sportId, req.body.eventName, req.body.eventDescription, req.body.eventDate);
+                        await eventService.updateEvent(checkEventObject, req.body.sportId, req.body.eventName, req.body.eventDescription, req.body.eventDate, req.body.eventImage);
                         res.json('Event updated in database').status(200);
                     }
                 }

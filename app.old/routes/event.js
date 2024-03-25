@@ -12,12 +12,12 @@ const op = Sequelize.Op;
 
 /**
  * @swagger
- * 
+ *
  *  components:
  *      schema:
  *          event:
  *              type: object
- *              properties: 
+ *              properties:
  *                  id_sport:
  *                      type: integer
  *                  name:
@@ -52,14 +52,14 @@ router.get('/', async (req, res) => {
  * @swagger
  * /event/{eventId}:
  *  get:
- *      tags: 
+ *      tags:
  *          - Event
  *      description: Retourne les informations d'un évènement en fonction de son id
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: eventId
  *            description: id de l'évènement
- *      responses: 
+ *      responses:
  *          200:
  *              description: Retourne les informations d'un évènement
  *          404:
@@ -93,19 +93,19 @@ router.get('/find-one/:eventId', async (req, res) => {
  * @swagger
  * /event/create:
  *  post:
- *      tags: 
+ *      tags:
  *          - Event
  *      description: Créer un évènement
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: eventId
  *            description: id de l'évènement
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/event'
- *      responses: 
+ *      responses:
  *          201:
  *              description: Créer un nouveau évènement
  *          404:
@@ -143,7 +143,8 @@ router.post('/create', async (req, res) => {
                             id_sport: sport_requested,
                             name: event_name_requested,
                             description: req.body.description,
-                            date_event: req.body.date
+                            date_event: req.body.date,
+                            image: req.body.image
                         });
                         await newEvent.save();
 
@@ -160,19 +161,19 @@ router.post('/create', async (req, res) => {
  * @swagger
  * /event/update:
  *  put:
- *      tags: 
+ *      tags:
  *          - Event
  *      description: Modifie un évènement
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: eventId
  *            description: id de l'évènement
- *      requestBody: 
+ *      requestBody:
  *          content:
  *              application/json:
  *                  schema:
  *                      $ref: '#components/schema/event'
- *      responses: 
+ *      responses:
  *          201:
  *              description: Modifie un nouveau évènement
  *          404:
@@ -195,7 +196,7 @@ router.put('/update/:eventId', async (req, res) => {
                 let errorMessage = "";
 
                 //check parameters and body
-                if (!req.body.id_sport && !req.body.name && !req.body.description && !req.body.date) {
+                if (!req.body.id_sport && !req.body.name && !req.body.description && !req.body.date && !req.body.image) {
                     res.json('Error: check your parameters. Either id_sport or name or description is required').status(404);
                     console.log('Error: id_sport or name or logo are missing in parameters');
                 } else if (!aEvent) {
@@ -224,6 +225,9 @@ router.put('/update/:eventId', async (req, res) => {
                     if (req.body.date) {
                         aEvent.date_event = req.body.date;
                     }
+                    if (req.body.image) {
+                        aEvent.image = req.body.image;
+                    }
                     await aEvent.save();
                     res.json("Event updated" + errorMessage).status(200);
                 }
@@ -236,14 +240,14 @@ router.put('/update/:eventId', async (req, res) => {
  * @swagger
  * /event/update:
  *  delete:
- *      tags: 
+ *      tags:
  *          - Event
  *      description: Supprime un évènement
- *      parameters: 
+ *      parameters:
  *          - in: path
  *            name: eventId
  *            description: id de l'évènement
- *      responses: 
+ *      responses:
  *          201:
  *              description: Supprime un nouveau évènement
  *          404:
@@ -277,7 +281,12 @@ router.delete('/delete/:eventId', async (req, res) => {
 });
 
 router.get('/next-events', async (req, res) => {
-    let events = await event.findAll({ where: { date_event: { [op.gte]: new Date().toISOString().split('T')[0] } }, limit: 8, order: [['date_event', 'ASC']] });
+    const events = await sequelize.query(
+        "SELECT EVENT.id, EVENT.name, EVENT.description, EVENT.date_event, EVENT.image, SPORT.name as sport_name FROM EVENT LEFT JOIN SPORT ON SPORT.id = EVENT.id_sport WHERE EVENT.date_event >= NOW() ORDER BY EVENT.date_event ASC LIMIT 8",
+        {
+            type: QueryTypes.SELECT
+        }
+    );
     if (!events) {
         res.status(200).json("We don't have any event in database");
     }
@@ -313,7 +322,7 @@ router.get('/events-sport/:idSport', async (req, res) => {
         console.log("Error: This sportId is unknow in database");
     } else {
         const events_from_sports = await sequelize.query(
-            "SELECT EVENT.name, EVENT.id, EVENT.description, EVENT.date_event FROM SPORT LEFT JOIN EVENT ON EVENT.id_sport = SPORT.id WHERE SPORT.id = :id_sport;",
+            "SELECT EVENT.name, EVENT.id, EVENT.description, EVENT.date_event, EVENT.image FROM SPORT LEFT JOIN EVENT ON EVENT.id_sport = SPORT.id WHERE SPORT.id = :id_sport;",
             {
                 replacements: { id_sport: idSport },
                 type: QueryTypes.SELECT

@@ -13,7 +13,7 @@ export async function getBar(barId) {
 }
 
 export async function createBar(barName, barAddress, barPostCode, barCity,
-    barMail, barUserId, barDescription = '') {
+    barMail, barUserId, barDescription = '', barImage = '') {
     const newBar = bar.build({
         name: barName,
         address: barAddress,
@@ -21,14 +21,15 @@ export async function createBar(barName, barAddress, barPostCode, barCity,
         city: barCity,
         mail: barMail,
         id_user: barUserId,
-        description: barDescription
+        description: barDescription,
+        image: barImage,
     })
     await newBar.save();
     return newBar;
 }
 
 export async function updateBar(barId, barName, barAddress, barPostCode, barCity,
-    barMail, barUserId, barDescription = '') {
+    barMail, barUserId, barDescription = '', barImage = '') {
     let barObject = await getBar(barId);
     barObject.name = barName;
     barObject.address = barAddress;
@@ -37,6 +38,7 @@ export async function updateBar(barId, barName, barAddress, barPostCode, barCity
     barObject.mail = barMail;
     barObject.id_user = barUserId;
     barObject.description = barDescription;
+    barObject.image = barImage;
 
     barObject.save();
     return barObject;
