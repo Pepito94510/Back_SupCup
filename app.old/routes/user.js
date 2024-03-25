@@ -1,16 +1,16 @@
-var express = require('express');
-var router = express.Router();
-const { QueryTypes } = require('sequelize');
-const bcrypt = require('bcrypt');
-const { createTokenFromData, checkToken } = require('../utils/tokens');
+import { Router } from 'express';
+var router = Router();
+import { QueryTypes } from 'sequelize';
+import { genSaltSync, hash as _hash, compare } from 'bcrypt';
+import { createTokenFromData, checkToken } from '../utils/tokens';
 
-const user = require('../models/user');
-const sport = require('../models/sport');
-const equipe = require('../models/equipe');
-const event = require('../models/event');
-const favEquipe = require('../models/fav_equipe');
+import { findAll, findByPk, findOne, build } from '../models/user';
+import { findByPk as _findByPk } from '../models/sport';
+import { findByPk as __findByPk } from '../models/equipe';
+import { findByPk as ___findByPk } from '../models/event';
+import favEquipe from '../models/fav_equipe';
 
-const sequelize = require('../utils/database');
+import { query } from '../utils/database';
 
 /**
  * @swagger
@@ -53,7 +53,7 @@ router.get('/', async (req, res) => {
     } else {
         const tokenOk = checkToken(req.headers.token);
         if (tokenOk.role_id >= 3) {
-            let users = await user.findAll();
+            let users = await findAll();
             res.status(200).json(users);
         } else {
             res.json("Error: You don't have access").status(403);
@@ -100,7 +100,7 @@ router.get('/find-one/:userId', async (req, res) => {
         } else {
             if (tokenOk.role_id >= 3) {
                 let { userId } = req.params;
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
 
                 if (!aUser) {
                     res.json('Error: this userId is unknow').status(404);
@@ -134,16 +134,16 @@ router.get('/find-one/:userId', async (req, res) => {
  *              description: L'utilisateur existe déjà en base de données
  */
 router.post('/create', async (req, res) => {
-    let userBDD = await user.findOne({ where: { email: req.body.email } });
+    let userBDD = await findOne({ where: { email: req.body.email } });
 
     if (userBDD) {
         res.status(409).json('User already created');
         console.log('User already created');
     } else {
-        const salt = bcrypt.genSaltSync(10);
-        const hash = await bcrypt.hash(req.body.password, salt);
+        const salt = genSaltSync(10);
+        const hash = await _hash(req.body.password, salt);
 
-        const newUser = user.build({
+        const newUser = build({
             last_name: req.body.last_name,
             first_name: req.body.first_name,
             email: req.body.email,
@@ -158,13 +158,13 @@ router.post('/create', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-    let userBDD = await user.findOne({ where: { email: req.body.email } });
+    let userBDD = await findOne({ where: { email: req.body.email } });
 
     if (!userBDD) {
         res.status(404).json('Error: Email is unknow in database');
         console.log('Error login: wrong email');
     } else {
-        isMatch = await bcrypt.compare(req.body.password, userBDD.password);
+        isMatch = await compare(req.body.password, userBDD.password);
         if (!isMatch) {
             res.status(404).json('Error: Password is incorect');
             console.log('Error login: wrong password for ' + req.body.email);
@@ -217,7 +217,7 @@ router.put('/update/:userId', async (req, res) => {
         } else {
             if (tokenOk.role_id >= 3) {
                 let { userId } = req.params;
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
 
                 if (req.body.first_name) {
                     aUser.first_name = req.body.first_name;
@@ -272,7 +272,7 @@ router.delete('/delete/:userId', async (req, res) => {
         } else {
             if (tokenOk.role_id >= 3) {
                 let { userId } = req.params;
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
 
                 if (!aUser) {
                     res.json('Error: This userId is unknow').status(404);
@@ -322,12 +322,12 @@ router.get('/favorite_sport/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
-                    const favorite_sport_from_user = await sequelize.query(
+                    const favorite_sport_from_user = await query(
                         "SELECT SPORT.id, SPORT.name FROM SPORT LEFT JOIN FAV_SPORT ON SPORT.id = FAV_SPORT.id_sport LEFT JOIN USER ON FAV_SPORT.id_user = USER.id WHERE USER.id = :id_user",
                         {
                             replacements: { id_user: userId },
@@ -378,18 +378,18 @@ router.post('/favorite_sport/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
                     let sportId = req.body.id_sport;
-                    let check_sportId = await sport.findByPk(sportId);
+                    let check_sportId = await _findByPk(sportId);
                     if (!check_sportId) {
                         res.json("Error: This sportId is unknow in database").status(404);
                         console.log("Error: This sportId is unknow in database");
                     } else {
-                        const [result, metadata] = await sequelize.query(
+                        const [result, metadata] = await query(
                             "SELECT id FROM `FAV_SPORT` WHERE `id_user` = :id_user AND `id_sport` = :id_sport",
                             {
                                 replacements: { id_user: userId, id_sport: sportId },
@@ -400,7 +400,7 @@ router.post('/favorite_sport/:userId', async (req, res) => {
                             res.json("Error: This relation is already in database").status(404);
                             console.log("Error: This relation is already in database");
                         } else {
-                            const add_favorite_sport = await sequelize.query(
+                            const add_favorite_sport = await query(
                                 "INSERT INTO `FAV_SPORT`(`id`, `id_user`, `id_sport`) VALUES (null, :id_user, :id_sport)",
                                 {
                                     replacements: { id_user: userId, id_sport: sportId },
@@ -453,18 +453,18 @@ router.delete('/favorite_sport/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
                     let sportId = req.body.id_sport;
-                    let check_sportId = await sport.findByPk(sportId);
+                    let check_sportId = await _findByPk(sportId);
                     if (!check_sportId) {
                         res.json("Error: This sportId is unknow in database").status(404);
                         console.log("Error: This sportId is unknow in database");
                     } else {
-                        const [result, metadata] = await sequelize.query(
+                        const [result, metadata] = await query(
                             "SELECT id FROM `FAV_SPORT` WHERE `id_user` = :id_user AND `id_sport` = :id_sport",
                             {
                                 replacements: { id_user: userId, id_sport: sportId },
@@ -475,7 +475,7 @@ router.delete('/favorite_sport/:userId', async (req, res) => {
                             res.json("Error: This relation is unknow in database").status(404);
                             console.log("Error: This relation is unknow in database");
                         } else {
-                            const add_favorite_sport = await sequelize.query(
+                            const add_favorite_sport = await query(
                                 "DELETE FROM `FAV_SPORT` WHERE `id` = :id",
                                 {
                                     replacements: { id: result["id"] },
@@ -525,12 +525,12 @@ router.get('/favorite_teams/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
-                    const favorite_sport_from_user = await sequelize.query(
+                    const favorite_sport_from_user = await query(
                         "SELECT EQUIPE.id, EQUIPE.name FROM EQUIPE LEFT JOIN FAV_EQUIPE ON EQUIPE.id = FAV_EQUIPE.id_equipe LEFT JOIN USER ON FAV_EQUIPE.id_user = USER.id WHERE USER.id = :id_user",
                         {
                             replacements: { id_user: userId },
@@ -580,18 +580,18 @@ router.post('/favorite_teams/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
                     let equipeId = req.body.id_equipe;
-                    let check_equipeId = await equipe.findByPk(equipeId);
+                    let check_equipeId = await __findByPk(equipeId);
                     if (!check_equipeId) {
                         res.json("Error: This equipeId is unknow in database").status(404);
                         console.log("Error: This equipeId is unknow in database");
                     } else {
-                        const [result, metadata] = await sequelize.query(
+                        const [result, metadata] = await query(
                             "SELECT id FROM `FAV_EQUIPE` WHERE `id_user` = :id_user AND `id_equipe` = :id_equipe",
                             {
                                 replacements: { id_user: userId, id_equipe: equipeId },
@@ -602,7 +602,7 @@ router.post('/favorite_teams/:userId', async (req, res) => {
                             res.json("Error: This relation is already in database").status(404);
                             console.log("Error: This relation is already in database");
                         } else {
-                            const add_favorite_equipe = await sequelize.query(
+                            const add_favorite_equipe = await query(
                                 "INSERT INTO `FAV_EQUIPE`(`id`, `id_user`, `id_equipe`) VALUES (null, :id_user, :id_equipe)",
                                 {
                                     replacements: { id_user: userId, id_equipe: equipeId },
@@ -655,18 +655,18 @@ router.delete('/favorite_teams/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
                     let equipeId = req.body.id_equipe;
-                    let check_equipeId = await equipe.findByPk(equipeId);
+                    let check_equipeId = await __findByPk(equipeId);
                     if (!check_equipeId) {
                         res.json("Error: This equipeId is unknow in database").status(404);
                         console.log("Error: This equipeId is unknow in database");
                     } else {
-                        const [result, metadata] = await sequelize.query(
+                        const [result, metadata] = await query(
                             "SELECT id FROM `FAV_EQUIPE` WHERE `id_user` = :id_user AND `id_equipe` = :id_equipe",
                             {
                                 replacements: { id_user: userId, id_equipe: equipeId },
@@ -677,7 +677,7 @@ router.delete('/favorite_teams/:userId', async (req, res) => {
                             res.json("Error: This relation is unknow in database").status(404);
                             console.log("Error: This relation is unknow in database");
                         } else {
-                            const add_favorite_sport = await sequelize.query(
+                            const add_favorite_sport = await query(
                                 "DELETE FROM `FAV_EQUIPE` WHERE `id` = :id",
                                 {
                                     replacements: { id: result["id"] },
@@ -727,12 +727,12 @@ router.get('/events/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
-                    const favorite_sport_from_user = await sequelize.query(
+                    const favorite_sport_from_user = await query(
                         "SELECT EVENT.id, EVENT.name, EVENT.description FROM EVENT LEFT JOIN USER_EVENT ON EVENT.id = USER_EVENT.id_event LEFT JOIN USER ON USER_EVENT.id_user = USER.id WHERE USER.id = :id_user",
                         {
                             replacements: { id_user: userId },
@@ -782,18 +782,18 @@ router.post('/events/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
                     let eventId = req.body.id_event;
-                    let check_eventId = await event.findByPk(eventId);
+                    let check_eventId = await ___findByPk(eventId);
                     if (!check_eventId) {
                         res.json("Error: This eventId is unknow in database").status(404);
                         console.log("Error: This eventId is unknow in database");
                     } else {
-                        const [result, metadata] = await sequelize.query(
+                        const [result, metadata] = await query(
                             "SELECT id FROM `USER_EVENT` WHERE `id_user` = :id_user AND `id_event` = :id_event",
                             {
                                 replacements: { id_user: userId, id_event: eventId },
@@ -804,7 +804,7 @@ router.post('/events/:userId', async (req, res) => {
                             res.json("Error: This relation is already in database").status(404);
                             console.log("Error: This relation is already in database");
                         } else {
-                            const user_participe_event = await sequelize.query(
+                            const user_participe_event = await query(
                                 "INSERT INTO `USER_EVENT`(`id`, `id_user`, `id_event`) VALUES (null, :id_user, :id_event)",
                                 {
                                     replacements: { id_user: userId, id_event: eventId },
@@ -857,18 +857,18 @@ router.delete('/events/:userId', async (req, res) => {
             if (tokenOk.role_id >= 1) {
                 let { userId } = req.params;
 
-                let aUser = await user.findByPk(userId);
+                let aUser = await findByPk(userId);
                 if (!aUser) {
                     res.json("Error: This userId is unknow in database").status(404);
                     console.log("Error: This userId is unknow in database");
                 } else {
                     let eventId = req.body.id_event;
-                    let check_eventId = await event.findByPk(eventId);
+                    let check_eventId = await ___findByPk(eventId);
                     if (!check_eventId) {
                         res.json("Error: This eventId is unknow in database").status(404);
                         console.log("Error: This eventId is unknow in database");
                     } else {
-                        const [result, metadata] = await sequelize.query(
+                        const [result, metadata] = await query(
                             "SELECT id FROM `USER_EVENT` WHERE `id_user` = :id_user AND `id_event` = :id_event",
                             {
                                 replacements: { id_user: userId, id_event: eventId },
@@ -879,7 +879,7 @@ router.delete('/events/:userId', async (req, res) => {
                             res.json("Error: This relation is unknow in database").status(404);
                             console.log("Error: This relation is unknow in database");
                         } else {
-                            const delete_participation = await sequelize.query(
+                            const delete_participation = await query(
                                 "DELETE FROM `USER_EVENT` WHERE `id` = :id",
                                 {
                                     replacements: { id: result["id"] },
@@ -907,7 +907,7 @@ router.get('/profil', async (req, res) => {
             res.json('Error: The token is incorect').status(404);
             console.log('Error: Wrong token');
         } else {
-            let aUser = await user.findByPk(tokenOk.id_user);
+            let aUser = await findByPk(tokenOk.id_user);
 
             if (!aUser) {
                 res.json('Error: this userId is unknow').status(404);
@@ -931,7 +931,7 @@ router.get('/fav-equipes', async (req, res) => {
             res.json('Error: The token is incorect').status(404);
             console.log('Error: Wrong token');
         } else {
-            let favEquipes = await sequelize.query(
+            let favEquipes = await query(
                 "SELECT * FROM `EQUIPE` e LEFT JOIN `FAV_EQUIPE` fe ON fe.id_equipe = e.id WHERE fe.id_user = :idUser", 
                 {
                     replacements: { idUser: tokenOk.id_user },
@@ -960,7 +960,7 @@ router.get('/fav-sports', async (req, res) => {
             res.json('Error: The token is incorect').status(404);
             console.log('Error: Wrong token');
         } else {
-            let favSports = await sequelize.query(
+            let favSports = await query(
                 "SELECT * FROM `SPORT` s LEFT JOIN `FAV_SPORT` fs ON fs.id_sport = s.id WHERE fs.id_user = :idUser", 
                 {
                     replacements: { idUser: tokenOk.id_user },
@@ -989,7 +989,7 @@ router.get('/fav-bars', async (req, res) => {
             res.json('Error: The token is incorect').status(404);
             console.log('Error: Wrong token');
         } else {
-            let favSports = await sequelize.query(
+            let favSports = await query(
                 "SELECT * FROM `BAR` b LEFT JOIN `FAV_BAR` fb ON fb.id_bar = b.id WHERE fb.id_user = :idUser", 
                 {
                     replacements: { idUser: tokenOk.id_user },
@@ -1006,4 +1006,4 @@ router.get('/fav-bars', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

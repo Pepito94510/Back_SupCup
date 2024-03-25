@@ -324,7 +324,6 @@ router.get('/events-sport/:idSport', async (req, res) => {
             "events": events_from_sports
         });
     }
-
 })
 
 module.exports = router;
