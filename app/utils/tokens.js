@@ -18,4 +18,3 @@ export function checkToken(token) {
     const decodeToken = verify(token, secretKey);
     return decodeToken;
 }
-
