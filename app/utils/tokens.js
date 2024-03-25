@@ -1,21 +1,21 @@
-const jwt = require('jsonwebtoken');
+import pkg from 'jsonwebtoken';
+const { sign, verify } = pkg;
+
+const secretKey = 'Changethissecret';
 
 
-function createTokenFromData(jsonData, options = {}) {
+export function createTokenFromData(jsonData, options = {}) {
     try {
-        const secretKey = process.env.SECRETKEY;
-        const token = jwt.sign(jsonData, secretKey, options);
+        const token = sign(jsonData, secretKey, options);
         return token;
     } catch (error) {
-        console.lof('Error: ' + error);
+        console.log('Error: ' + error);
         return null;
     }
 }
 
-function checkToken(token) {
-        const secretKey = process.env.SECRETKEY;
-        const decodeToken = jwt.verify(token, secretKey);
-        return decodeToken;
+export function checkToken(token) {
+    const decodeToken = verify(token, secretKey);
+    return decodeToken;
 }
 
-module.exports = { createTokenFromData, checkToken };

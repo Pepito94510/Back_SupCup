@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize('mysql://supcup_user:supcup_password@db/supcup_db');
 
@@ -10,4 +10,4 @@ catch (error) {
     console.error('Unable to connect',error);
 }
 
-export default sequelize;
+module.exports = sequelize;
