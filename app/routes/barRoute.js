@@ -44,7 +44,7 @@ barRouter.post('/create', async (req, res) => {
                 res.json('Error: this user id is unknow in database').status(404);
             } else {
                 let newBar = await barService.createBar(req.body.barName, req.body.barAddress, req.body.barPostCode,
-                    req.body.barCity, req.body.barMail, req.body.barUserId, req.body.barDescription);
+                    req.body.barCity, req.body.barMail, req.body.barUserId, req.body.barDescription, req.body.barImage);
                 res.json(newBar).status(201);
             }
         }
@@ -70,7 +70,7 @@ barRouter.put('/update/:barId', async (req, res) => {
                     res.json('Error: This user id is unknow in database').status(404);
                 } else {
                     let barUpdated = await barService.updateBar(req.params.barId, req.body.barName, req.body.barAddress,
-                        req.body.barPostCode, req.body.barCity, req.body.barMail, req.body.barUserId, req.body.barDescription);
+                        req.body.barPostCode, req.body.barCity, req.body.barMail, req.body.barUserId, req.body.barDescription, req.body.barImage);
                     res.json(barUpdated).status(200);
                 }
             }

@@ -14,22 +14,25 @@ export async function getEvent(eventId) {
     return oneEvent;
 }
 
-export async function createEvent(sportId, eventName, EventDescription, EventDate) {
+export async function createEvent(sportId, eventName, eventDescription, eventDate, eventImage) {
     const newEvent = event.build({
         id_sport: sportId,
         name: eventName,
-        description: EventDescription,
-        date_event: EventDate
+        description: eventDescription,
+        date_event: eventDate,
+        image: eventImage
     });
     await newEvent.save();
     return newEvent;
 }
 
-export async function updateEvent(eventObject, eventSportId, eventName, EventDescription, EventDate) {
-    eventObject.id_sport = eventSportId
+export async function updateEvent(eventObject, eventSportId, eventName, eventDescription, eventDate, eventImage) {
+    eventObject.id_sport = eventSportId;
     eventObject.name = eventName;
-    eventObject.description = EventDescription;
-    eventObject.date_event = EventDate
+    eventObject.description = eventDescription;
+    eventObject.date_event = eventDate;
+    eventObject.image = eventImage;
+
     await eventObject.save();
     return eventObject;
 }
@@ -40,7 +43,12 @@ export async function deleteEvent(eventObject) {
 }
 
 export async function getNextEvents() {
-    let events = await event.findAll({ where: { date_event: { [op.gte]: new Date().toISOString().split('T')[0] } }, limit: 8, order: [['date_event', 'ASC']] });
+    const events = await sequelize.query(
+        "SELECT EVENT.id, EVENT.name, EVENT.description, EVENT.date_event, EVENT.image, SPORT.name as sport_name FROM EVENT LEFT JOIN SPORT ON SPORT.id = EVENT.id_sport WHERE EVENT.date_event >= NOW() ORDER BY EVENT.date_event ASC LIMIT 8",
+        {
+            type: QueryTypes.SELECT
+        }
+    );
     return events
 }
 
@@ -57,7 +65,7 @@ export async function getEventDetails(eventObject) {
 
 export async function getEventsSport(idSport) {
     const events_from_sports = await sequelize.query(
-        "SELECT EVENT.name, EVENT.id, EVENT.description, EVENT.date_event FROM SPORT LEFT JOIN EVENT ON EVENT.id_sport = SPORT.id WHERE SPORT.id = :id_sport;",
+        "SELECT EVENT.name, EVENT.id, EVENT.description, EVENT.date_event, EVENT.image FROM SPORT LEFT JOIN EVENT ON EVENT.id_sport = SPORT.id WHERE SPORT.id = :id_sport;",
         {
             replacements: { id_sport: idSport },
             type: QueryTypes.SELECT

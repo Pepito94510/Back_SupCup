@@ -19,6 +19,10 @@ event.init({
     date_event: {
         type: DataTypes.DATE,
         allowNull: false
+    },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     sequelize,

@@ -13,17 +13,19 @@ export async function getSport(sportId) {
     return oneSport;
 }
 
-export async function createSport(sportName) {
+export async function createSport(sportName, sportImage) {
     const newSport = sport.build({
-        name: sportName
+        name: sportName,
+        image: sportImage
     })
     await newSport.save();
     return newSport;
 }
 
-export async function updateSport(sportId, sportName) {
+export async function updateSport(sportId, sportName, sportImage) {
     let sportObject = await getSport(sportId);
     sportObject.name = sportName;
+    sportObject.image = sportImage;
     sportObject.save();
     return sportObject;
 }
