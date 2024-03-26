@@ -7,7 +7,7 @@ import * as eventService from "../services/eventService.js"
 
 barRouter.get('/', async (req, res) => {
     if (!req.headers.token) {
-        res.json('Error: token is required').status(404);
+        res.status(404).json('Error: token is required');
     } else {
         //ajouter check TOKEN > 3
         let allBars = await barService.getBars();
@@ -17,14 +17,14 @@ barRouter.get('/', async (req, res) => {
 
 barRouter.get('/:barId', async (req, res) => {
     if (!req.headers.token) {
-        res.json('Error: token is required').status(404);
+        res.status(404).json('Error: token is required');
     } else {
         //ajouter check TOKEN > 3
         let oneBar = await barService.getBar(req.params.barId);
         if (!oneBar) {
-            res.json('Error: This bar id is unknow in database').status(404);
+            res.status(404).json('Error: This bar id is unknow in database');
         } else {
-            res.json(oneBar).status(200);
+            res.status(200).json(oneBar);
         }
     }
 });
