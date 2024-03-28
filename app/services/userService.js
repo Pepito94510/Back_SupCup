@@ -1,7 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import sequelize from "../utils/database.js";
 import user from "../models/userModel.js";
-import { genSaltSync, hash, compare } from 'bcrypt';
+// import { genSaltSync, hash, compare } from 'bcrypt';
 
 export async function getUsers() {
     let users = await user.findAll();

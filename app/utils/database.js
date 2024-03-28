@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 
-const sequelize = new Sequelize('mysql://supcup_user:supcup_password@db/supcup_db');
+export const sequelize = new Sequelize('mysql://supcup_user:supcup_password@db/supcup_db');
 
 try {
     sequelize.authenticate();
