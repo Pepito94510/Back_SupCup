@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express'
 
 //Add router here
 import userRouter from './routes/userRoute.js';
@@ -24,6 +26,28 @@ export default function (database) {
   app.use('/event', eventRouter);
   app.use('/role', roleRouter);
   app.use('/bar', barRouter);
+
+  // Swagger documentation
+
+  const options = {
+    definition: {
+      openapi: '3.0.0',
+      info: {
+        title: 'Node JS API project for supcup backend',
+        version: '1.0.0'
+      },
+      servers: [
+        {
+          url: 'http://localhost:5001/'
+        }
+      ]
+    },
+    apis: ['./routes/*.js']
+  }
+
+  const swaggerSpec = swaggerJSDoc(options);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
 
   // Global routes
   app.get('/', (req, res) => {
