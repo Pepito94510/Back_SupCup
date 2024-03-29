@@ -332,7 +332,7 @@ barRouter.post('/events/:barId', async (req, res) => {
  *          - in: headers
  *            name: token
  *            description: token d'acces
- *          - in: body
+ *          - in: formData
  *            name: eventId
  *            description: id de l'evenement
  *      requestBody:
