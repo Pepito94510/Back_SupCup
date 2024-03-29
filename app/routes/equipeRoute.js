@@ -42,6 +42,9 @@ equipeRouter.get('/', async (req, res) => {
  *          - in: path
  *            name: equipeId
  *            description: id de l'équipe
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
  *      responses:
  *          200:
  *              description: Retourne les informations d'une équipe
@@ -69,6 +72,10 @@ equipeRouter.get('/find-one/:equipeId', async (req, res) => {
  *      tags:
  *          - Equipe
  *      description: Créer une équipe
+ *      parameters:
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
  *      requestBody:
  *          content:
  *              application/json:
@@ -121,6 +128,9 @@ equipeRouter.post('/create', async (req, res) => {
  *          - in: path
  *            name: equipeId
  *            description: id de l'équipe
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
  *      requestBody:
  *          content:
  *              application/json:
@@ -172,6 +182,9 @@ equipeRouter.put('/update/:equipeId', async (req, res) => {
  *          - in: path
  *            name: equipeId
  *            description: id de l'équipe
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
  *      responses:
  *          200:
  *              description: Supprime les informations d'une équipe unique
