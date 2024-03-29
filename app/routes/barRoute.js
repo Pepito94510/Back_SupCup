@@ -381,14 +381,42 @@ barRouter.delete('/events/:barId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /bar/top-bars:
+ *  get:
+ *      tags:
+ *          - Bar
+ *      description: Retourne les top bars du moment
+ *      responses:
+ *          200:
+ *              description: Retourne la liste des bars
+ */
 barRouter.get('/top-bars', async (req, res) => {
     let bars = await barService.getTopBars();
     if(!bars) {
         res.status(200).json("We don't have any bars in database");
     }
     res.status(200).json(bars);
-})
+});
 
+/**
+ * @swagger
+ * /bar/details/{barId}:
+ *  get:
+ *      tags:
+ *          - Bar
+ *      description: Retourne des detail sur le bar par son Id
+ *      parameters:
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *      responses:
+ *          200:
+ *              description: Retourne les details d'un bar
+ *          404:
+ *              description: L'id bar saisie n'est pas connu ne base de données
+ */
 barRouter.get('/details/:barId', async (req, res) => {
     let { barId } = req.params;
     let aBar = await barService.getBar(barId);
