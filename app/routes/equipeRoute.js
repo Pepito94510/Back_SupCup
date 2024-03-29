@@ -4,6 +4,22 @@ import * as equipeService from '../services/equipeService.js';
 import { getSport } from "../services/sportService.js";
 import { checkToken } from "../utils/tokens.js";
 
+/**
+ * @swagger
+ *
+ *  components:
+ *      schema:
+ *          equipe:
+ *              type: object
+ *              properties:
+ *                  id_sport:
+ *                      type: integer
+ *                  name:
+ *                      type: string
+ *                  logo:
+ *                      type: string
+ */
+
 equipeRouter.get('/', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: token is required').status(404);
@@ -14,6 +30,27 @@ equipeRouter.get('/', async (req, res) => {
     }
 });
 
+
+/**
+ * @swagger
+ * /equipe/find-one/{equipeId}:
+ *  get:
+ *      tags:
+ *          - Equipe
+ *      description: Retourne les informations d'une équipe en fonction de son id
+ *      parameters:
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      responses:
+ *          200:
+ *              description: Retourne les informations d'une équipe
+ *          404:
+ *              description: L'id équipe saisie n'est pas connu ne base de données
+ */
 equipeRouter.get('/find-one/:equipeId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: this token is required').status(404);
@@ -28,6 +65,30 @@ equipeRouter.get('/find-one/:equipeId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /equipe/create:
+ *  post:
+ *      tags:
+ *          - Equipe
+ *      description: Créer une équipe
+ *      parameters:
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/equipe'
+ *      responses:
+ *          201:
+ *              description: Créée une équipe unique
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: L'équipe existe déjà en base de données
+ */
 equipeRouter.post('/create', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: this token is required').status(404);
@@ -56,6 +117,31 @@ equipeRouter.post('/create', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /equipe/update/{equipeId}:
+ *  put:
+ *      tags:
+ *          - Equipe
+ *      description: Modifie une équipe
+ *      parameters:
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/equipe'
+ *      responses:
+ *          200:
+ *              description: Modifie les informations d'une équipe unique
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 equipeRouter.put('/update/:equipeId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: The token is incorect').status(404);
@@ -85,6 +171,26 @@ equipeRouter.put('/update/:equipeId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /equipe/delete/{equipeId}:
+ *  delete:
+ *      tags:
+ *          - Equipe
+ *      description: Supprime une équipe
+ *      parameters:
+ *          - in: path
+ *            name: equipeId
+ *            description: id de l'équipe
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      responses:
+ *          200:
+ *              description: Supprime les informations d'une équipe unique
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 equipeRouter.delete('/delete/:equipeId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: The token is incorrect').status(404);

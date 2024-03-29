@@ -3,6 +3,18 @@ const sportRouter = Router();
 import * as sportService from '../services/sportService.js';
 import { checkToken } from "../utils/tokens.js";
 
+/**
+ * @swagger
+ *
+ *  components:
+ *      schema:
+ *          sport:
+ *              type: object
+ *              properties:
+ *                  name:
+ *                      type: string
+ */
+
 sportRouter.get('/', async (req, res) => {
     if(!req.headers.token) {
         res.json('Error: token is required').status(404);
@@ -13,6 +25,26 @@ sportRouter.get('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /sports/find-one/{sportId}:
+ *  get:
+ *      tags:
+ *          - Sport
+ *      description: Retourne les informations d'un sport en fonction de son id
+ *      parameters:
+ *          - in: path
+ *            name: sportId
+ *            description: id du sport
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      responses:
+ *          200:
+ *              description: Retourne les informations d'un sport
+ *          404:
+ *              description: L'id sport saisie n'est pas connu ne base de données
+ */
 sportRouter.get('/find-one/:sportId', async (req,res) => {
     if(!req.headers.token) {
         res.json('Error: this token is required').status(404);
@@ -27,6 +59,30 @@ sportRouter.get('/find-one/:sportId', async (req,res) => {
     }
 })
 
+/**
+ * @swagger
+ * /sport/create:
+ *  post:
+ *      tags:
+ *          - Sport
+ *      description: Créer un sport unique
+ *      parameters:
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/sport'
+ *      responses:
+ *          201:
+ *              description: Créer un nouveau sport
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: Le sport existe déjà en base de données
+ */
 sportRouter.post('/create', async (req,res) => {
     if(!req.headers.token) {
         res.json('Error: this token is required').status(404);
@@ -50,6 +106,31 @@ sportRouter.post('/create', async (req,res) => {
     }
 })
 
+/**
+ * @swagger
+ * /sport/update/{sportId}:
+ *  put:
+ *      tags:
+ *          - Sport
+ *      description: Modifie un sport
+ *      parameters:
+ *          - in: path
+ *            name: sportId
+ *            description: id du sport
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/sport'
+ *      responses:
+ *          201:
+ *              description: Modifie un sport
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 sportRouter.put('/update/:sportId', async (req,res) => {
     if (!req.headers.token) {
         res.json('Error: The token is incorect').status(404);
@@ -69,6 +150,26 @@ sportRouter.put('/update/:sportId', async (req,res) => {
     }
 });
 
+/**
+ * @swagger
+ * /sport/delete/{sportId}:
+ *  delete:
+ *      tags:
+ *          - Sport
+ *      description: Supprime un sport par son id
+ *      parameters:
+ *          - in: path
+ *            name: sportId
+ *            description: id du sport
+ *          - in: headers
+ *            name: token
+ *            description: token d'accès
+ *      responses:
+ *          201:
+ *              description: Supprime un sport
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 sportRouter.delete('/delete/:sportId', async (req,res) => {
     if(!req.headers.token) {
         res.json('Error: The token is incorrect').status(404);
@@ -84,6 +185,17 @@ sportRouter.delete('/delete/:sportId', async (req,res) => {
     }
 });
 
+/**
+ * @swagger
+ * /sports/top-sports:
+ *  get:
+ *      tags:
+ *          - Sport
+ *      description: Retourne les tops sports du moment
+ *      responses:
+ *          200:
+ *              description: Retourne les informations d'un sport
+ */
 sportRouter.get('/top-sports', async (req, res) => {
     const limit = 8;
     const order = [['id', 'DESC']];
