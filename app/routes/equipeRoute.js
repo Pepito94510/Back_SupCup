@@ -73,7 +73,6 @@ equipeRouter.put('/update/:equipeId', async (req, res) => {
                     res.json('Error: This sportId is unknow in database').status(404);
                 } else {
                     let checkEquipeName = await equipeService.getEquipeNameByName(req.body.equipeName, req.body.sportId);
-                    console.log(checkEquipeName);
                     if (checkEquipeName) {
                         res.json('Error: Equipe name are already used in database').status(400);
                     } else {
