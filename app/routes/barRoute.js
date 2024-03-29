@@ -1,9 +1,38 @@
 import { Router } from "express";
 const barRouter = Router();
-import { checkToken, createTokenFromData } from "../utils/tokens.js";
+import { checkToken } from "../utils/tokens.js";
 import * as barService from "../services/barService.js"
 import { getUser } from "../services/userService.js";
 import * as eventService from "../services/eventService.js"
+
+/**
+ * @swagger
+ *
+ *  components:
+ *      schema:
+ *          bar:
+ *              type: object
+ *              properties:
+ *                  name:
+ *                      type: string
+ *                  address:
+ *                      type: string
+ *                  postcode:
+ *                      type: integer
+ *                  city:
+ *                      type: string
+ *                  mail:
+ *                      type: string
+ *                  id_user:
+ *                      type: integer
+ *                  image:
+ *                      type: string
+ *          bar_event:
+ *              type: object
+ *              properties:
+ *                  eventId:
+ *                      type: integer
+ */
 
 barRouter.get('/', async (req, res) => {
     if (!req.headers.token) {
@@ -15,6 +44,26 @@ barRouter.get('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /bar/find-one/{barId}:
+ *  get:
+ *      tags:
+ *          - Bar
+ *      description: Retourne les informations d'un bar en fonction de son id
+ *      parameters:
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *          - in: headers
+ *            name: token
+ *            description: token d'acces
+ *      responses:
+ *          200:
+ *              description: Retourne les informations d'un bar
+ *          404:
+ *              description: L'id bar saisie n'est pas connu ne base de données
+ */
 barRouter.get('/find-one/:barId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: token is required').status(404);
@@ -29,6 +78,30 @@ barRouter.get('/find-one/:barId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /bar/create:
+ *  post:
+ *      tags:
+ *          - Bar
+ *      description: Créer un bar
+ *      parameters:
+ *          - in: headers
+ *            name: token
+ *            description: token d'acces
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar'
+ *      responses:
+ *          201:
+ *              description: Créer un nouveau bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ *          409:
+ *              description: Le bar existe déjà en base de données
+ */
 barRouter.post('/create', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: token is required').status(404);
@@ -51,6 +124,31 @@ barRouter.post('/create', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /bar/update/{barId}:
+ *  put:
+ *      tags:
+ *          - Bar
+ *      description: Modifie les informations d'un bar
+ *      parameters:
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *          - in: headers
+ *            name: token
+ *            description: token d'acces
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar'
+ *      responses:
+ *          201:
+ *              description: Modifie un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 barRouter.put('/update/:barId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: token is required').status(404);
@@ -78,6 +176,26 @@ barRouter.put('/update/:barId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /bar/delete/{barId}:
+ *  delete:
+ *      tags:
+ *          - Bar
+ *      description: Supprime les informations d'un bar par son Id
+ *      parameters:
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *          - in: headers
+ *            name: token
+ *            description: token d'acces
+ *      responses:
+ *          200:
+ *              description: Supprime un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 barRouter.delete('/delete/:barId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: token is required').status(404);
@@ -94,6 +212,26 @@ barRouter.delete('/delete/:barId', async (req, res) => {
 
 // ROUTE API WITH JOIN FOR EVENTS
 
+/**
+ * @swagger
+ * /bar/events/{barId}:
+ *  get:
+ *      tags:
+ *          - Bar-Evénement
+ *      description: Récupère les évènements liés à un bar
+ *      parameters:
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *          - in: headers
+ *            name: token
+ *            description: token d'acces
+ *      responses:
+ *          200:
+ *              description: Récupère les évènements liés à un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
 barRouter.get('/events/:barId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
@@ -115,7 +253,37 @@ barRouter.get('/events/:barId', async (req, res) => {
     }
 });
 
-barRouter.post('/events/:barId', async (req,res) => {
+/**
+ * @swagger
+ * /bar/events/{barId}:
+ *  post:
+ *      tags:
+ *          - Bar-Evénement
+ *      description: Ajoute un évènement à un bar
+ *      parameters:
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *            type: integer
+ *          - in: headers
+ *            name: token
+ *            description: token d'acces
+ *          - in: formData
+ *            name: eventId
+ *            description: id de l'evenement
+ *            type: integer
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar_event'
+ *      responses:
+ *          201:
+ *              description: Ajoute un évènement à un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
+barRouter.post('/events/:barId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
     } else {
@@ -150,7 +318,35 @@ barRouter.post('/events/:barId', async (req,res) => {
     }
 });
 
-barRouter.delete('/events/:barId', async (req,res) => {
+/**
+ * @swagger
+ * /bar/events/{barId}:
+ *  delete:
+ *      tags:
+ *          - Bar-Evénement
+ *      description: Supprime un évènement liée à un bar
+ *      parameters:
+ *          - in: path
+ *            name: barId
+ *            description: id du bar
+ *          - in: headers
+ *            name: token
+ *            description: token d'acces
+ *          - in: body
+ *            name: eventId
+ *            description: id de l'evenement
+ *      requestBody:
+ *          content:
+ *              application/json:
+ *                  schema:
+ *                      $ref: '#components/schema/bar_event'
+ *      responses:
+ *          200:
+ *              description: Supprime un évènement à un bar
+ *          404:
+ *              description: Erreurs provenant des paramètres
+ */
+barRouter.delete('/events/:barId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: You need a token').status(404);
     } else {
