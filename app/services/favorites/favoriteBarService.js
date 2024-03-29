@@ -35,7 +35,6 @@ export async function addFavoriteBar(userId, barId) {
 }
 
 export async function deleteFavoriteBar(relationId) {
-    console.log(relationId);
     let checkRelation = await sequelize.query(
         "DELETE FROM `FAV_BAR` WHERE id = :idRelation",
         {

@@ -26,7 +26,7 @@ userRouter.get('/find-one/:userId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: token is required').status(404);
     } else {
-        //ajouter check TOKEN > 3 
+        //ajouter check TOKEN > 3
 
         if (!req.params) {
             res.json('Error: user id missing in parameters');
@@ -466,7 +466,6 @@ userRouter.delete('/favorite_bar/:userId', async (req,res) => {
                         res.json('Error: this barId is unknow in database').status(404);
                     } else {
                         let checkRelation = await favoriteBarService.checkUserBarRelation(req.params.userId, req.body.barId);
-                        console.log(checkRelation);
                         if (!checkRelation > 0) {
                             res.json('Error: This relation is unknow in database').status(404);
                         } else {
@@ -476,6 +475,98 @@ userRouter.delete('/favorite_bar/:userId', async (req,res) => {
                     }
                 }
             }
+        }
+    }
+});
+
+userRouter.get('/profil', async (req,res) => {
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let aUser = await userService.getUser(tokenOk.id_user);
+
+            if (!aUser) {
+                res.json('Error: this userId is unknow').status(404);
+                console.log('Error: this userId is unknow');
+            } else {
+                res.status(200).json(aUser);
+            }
+        }
+    }
+});
+
+userRouter.get('/fav-equipes', async (req, res) => {
+
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let favEquipes = await favoriteTeamService.getFavoriteTeams(tokenOk.id_user);
+
+            if(!favEquipes) {
+                res.status(200).json("You do not have any favorite team");
+            }
+
+            res.status(200).json(favEquipes);
+        }
+    }
+});
+
+userRouter.get('/fav-sports', async (req, res) => {
+
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let favSports = await favoriteSportService.getFavoriteSport(tokenOk.id_user);
+
+            if(!favSports) {
+                res.status(200).json("You do not have any favorite sport");
+            }
+
+            res.status(200).json(favSports);
+        }
+    }
+});
+
+userRouter.get('/fav-bars', async (req, res) => {
+
+    if (!req.headers.token) {
+        res.json('Error: You need a token').status(404);
+    } else {
+        let token = req.headers.token;
+        const tokenOk = checkToken(token);
+
+        if (!tokenOk) {
+            res.json('Error: The token is incorect').status(404);
+            console.log('Error: Wrong token');
+        } else {
+            let favBars = await favoriteBarService.getFavoriteBars(tokenOk.id_user);
+
+            if(!favBars) {
+                res.status(200).json("You do not have any favorite bar");
+            }
+
+            res.status(200).json(favBars);
         }
     }
 });

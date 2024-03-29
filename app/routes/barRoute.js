@@ -15,7 +15,7 @@ barRouter.get('/', async (req, res) => {
     }
 });
 
-barRouter.get('/:barId', async (req, res) => {
+barRouter.get('/find-one/:barId', async (req, res) => {
     if (!req.headers.token) {
         res.json('Error: token is required').status(404);
     } else {
@@ -137,7 +137,6 @@ barRouter.post('/events/:barId', async (req,res) => {
                         res.json('Error: this eventId is unknow in database').status(404);
                     } else {
                         let checkRelation = await barService.checkBarEventRelation(req.params.barId, req.body.eventId);
-                        console.log(checkRelation);
                         if (checkRelation) {
                             res.json('Error: This relation is already in database').status(404);
                         } else {
@@ -173,7 +172,6 @@ barRouter.delete('/events/:barId', async (req,res) => {
                         res.json('Error: this eventId is unknow in database').status(404);
                     } else {
                         let checkRelation = await barService.checkBarEventRelation(req.params.barId, req.body.eventId);
-                        console.log(checkRelation);
                         if (!checkRelation) {
                             res.json('Error: This relation is unknow in database').status(404);
                         } else {
@@ -184,6 +182,26 @@ barRouter.delete('/events/:barId', async (req,res) => {
                 }
             }
         }
+    }
+});
+
+barRouter.get('/top-bars', async (req, res) => {
+    let bars = await barService.getTopBars();
+    if(!bars) {
+        res.status(200).json("We don't have any bars in database");
+    }
+    res.status(200).json(bars);
+})
+
+barRouter.get('/details/:barId', async (req, res) => {
+    let { barId } = req.params;
+    let aBar = await barService.getBar(barId);
+    if (!aBar) {
+        res.json("Error: This barId is unknow in database").status(404);
+        console.log("Error: This barId is unknow in database");
+    } else {
+        const events_from_bar = await barService.getBarDetails(barId);
+        res.status(200).json({"bar": aBar, "events": events_from_bar});
     }
 });
 

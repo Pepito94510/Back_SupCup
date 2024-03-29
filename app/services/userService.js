@@ -14,7 +14,6 @@ export async function getUser(userId) {
 }
 
 export async function findUserByMail(email) {
-    console.log(email);
     let oneUser = await user.findOne({ where: { email: email } });
     return oneUser;
 }
@@ -55,6 +54,5 @@ export async function deleteUser(userId) {
 
 export async function checkPassword(bodyPassword, userPassword) {
     let check = await compare(bodyPassword, userPassword);
-    console.log(check);
     return check;
 }

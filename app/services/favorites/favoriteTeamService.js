@@ -5,7 +5,7 @@ import { getUser } from '../userService.js';
 
 export async function getFavoriteTeams(userId) {
     const favorite_sport_from_user = await sequelize.query(
-        "SELECT EQUIPE.id, EQUIPE.name FROM EQUIPE LEFT JOIN FAV_EQUIPE ON EQUIPE.id = FAV_EQUIPE.id_equipe LEFT JOIN USER ON FAV_EQUIPE.id_user = USER.id WHERE USER.id = :id_user",
+        "SELECT * FROM `EQUIPE` e LEFT JOIN `FAV_EQUIPE` fe ON fe.id_equipe = e.id WHERE fe.id_user = :id_user",
         {
             replacements: { id_user: userId },
             type: QueryTypes.SELECT
@@ -44,5 +44,5 @@ export async function deleteFavoriteTeam(relationId) {
             type: QueryTypes.DELETE
         }
     );
-    return 
+    return
 }

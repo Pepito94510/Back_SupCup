@@ -8,7 +8,6 @@ export async function getSports() {
 }
 
 export async function getSport(sportId) {
-    console.log(sportId);
     let oneSport = await sport.findByPk(sportId);
     return oneSport;
 }

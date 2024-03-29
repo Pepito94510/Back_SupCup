@@ -9,7 +9,7 @@ export async function getFavoriteSport(userId) {
         return null
     } else {
         const favorite_sport_from_user = await sequelize.query(
-            "SELECT SPORT.id, SPORT.name FROM SPORT LEFT JOIN FAV_SPORT ON SPORT.id = FAV_SPORT.id_sport LEFT JOIN USER ON FAV_SPORT.id_user = USER.id WHERE USER.id = :id_user",
+            "SELECT * FROM `SPORT` s LEFT JOIN `FAV_SPORT` fs ON fs.id_sport = s.id WHERE fs.id_user = :id_user",
             {
                 replacements: { id_user: userId },
                 type: QueryTypes.SELECT
