@@ -3,6 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express'
+import database from "./utils/database.js"
 
 //Add router here
 import userRouter from './routes/userRoute.js';
