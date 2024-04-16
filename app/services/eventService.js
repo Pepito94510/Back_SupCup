@@ -54,7 +54,7 @@ export async function getNextEvents() {
 
 export async function getEventDetails(eventObject) {
     const bars_from_event = await sequelize.query(
-        "SELECT BAR.id, BAR.name, BAR.address, BAR.postcode, BAR.city, BAR.mail, BAR.description FROM BAR LEFT JOIN BAR_EVENT ON BAR.id = BAR_EVENT.id_bar LEFT JOIN EVENT ON EVENT.id = BAR_EVENT.id_event WHERE EVENT.id = :id_event",
+        "SELECT BAR.id, BAR.name, BAR.address, BAR.postcode, BAR.city, BAR.mail, BAR.description, BAR.image FROM BAR LEFT JOIN BAR_EVENT ON BAR.id = BAR_EVENT.id_bar LEFT JOIN EVENT ON EVENT.id = BAR_EVENT.id_event WHERE EVENT.id = :id_event",
         {
             replacements: { id_event: eventObject.dataValues.id },
             type: QueryTypes.SELECT
