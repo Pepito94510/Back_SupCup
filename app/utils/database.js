@@ -1,13 +1,13 @@
 import { Sequelize } from 'sequelize';
 
-const sequelize = new Sequelize('mysql://supcup_user:supcup_password@db/supcup_db');
+const sequelize = new Sequelize('mysql://root:thispasswordneedachange@db/supcup_db');
 
 try {
-    sequelize.authenticate();
+    await sequelize.authenticate();
     console.log('Connection successful');
 }
 catch (error) {
-    console.error('Unable to connect',error);
+    console.error('Unable to connect', error);
 }
 
 export default sequelize;
