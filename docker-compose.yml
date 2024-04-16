@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  back_supcup:
+    build: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - './app:/Back_SupCup'
+    command: 
+      - /bin/sh
+      - '-c'
+      - 'npm install && npm start'
+    networks:
+      - mysql-phpmyadmin
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mysql:5.7
+    container_name: db
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      #If you change the credentials in the pma, you need to delete your volumes
+    ports:
+      - "6033:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin','ping', '-h', 'localhost']
+      timeout: 20s
+      retries: 10
+    networks:
+      - mysql-phpmyadmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
+    networks:
+      - mysql-phpmyadmin
+
+volumes:
+  dbdata:
+
+networks:
+  mysql-phpmyadmin:
+    name: mysql-phpmyadmin
+    # use the bridge driver
+    driver: bridge
