@@ -20,12 +20,12 @@ export default function (database) {
   app.use(bodyParser())
 
   //add routes here
-  app.use('/user', userRouter);
-  app.use('/sport', sportRouter);
-  app.use('/equipe', equipeRouter);
-  app.use('/event', eventRouter);
-  app.use('/role', roleRouter);
-  app.use('/bar', barRouter);
+  app.use('/api/user', userRouter);
+  app.use('/api/sport', sportRouter);
+  app.use('/api/equipe', equipeRouter);
+  app.use('/api/event', eventRouter);
+  app.use('/api/role', roleRouter);
+  app.use('/api/bar', barRouter);
 
   // Swagger documentation
 
@@ -50,11 +50,11 @@ export default function (database) {
 
 
   // Global routes
-  app.get('/', (req, res) => {
+  app.get('/api/', (req, res) => {
     res.status(200).send('Hello world !');
   });
 
-  app.get('/test', (req, res) => {
+  app.get('/api/test', (req, res) => {
     res.status(200).send('Test !');
   });
 
